@@ -1,0 +1,150 @@
+---
+title: "基礎知識"
+---
+
+@Rodgers:2000 を参考に逆問題の基礎知識をまとめておく。
+
+## ガウス分布
+
+平均$\bar{x}$、標準偏差$\sigma$の正規分布は
+
+$$
+P(x) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left\{-\frac{x-\bar{x}}{2\sigma^2}\right\}
+$$ {#eq-scalar_gaussian}
+
+$n$次元のベクトル$\mathbf{x}$に対しては
+$$
+P(\mathbf{x}) = \frac{1}{(2\pi)^{n/2}|\mathbf{S}_x|^{1/2}}\exp\left\{
+  -(\mathbf{x}-\bar{\mathbf{x}})^\mathrm{T}\mathbf{S}_x^{-1}(\mathbf{x}-\bar{\mathbf{x}})\right\}
+$$
+と書ける。
+ここで$\mathbf{S}_x$は共分散行列である。
+
+```{r}
+#| code-fold: true
+curve(dnorm, xlim=c(-5, 5))
+```
+
+# ベイズの定理
+
+状態$\mathbf{x}$と観測$\mathbf{y}$がスカラーの場合について、同時確率密度分布（*pdf*: probability distribution function）の例を図示する。
+
+```{r}
+#| fig-width: 6
+#| fig-height: 6
+#| label: fig-bayes
+#| fig-cap: "2次元におけるBayesの定理の概念図"
+#| code-fold: true
+
+gaussian2d <- function(x, y, a, b, theta) {
+  sdev <- sqrt(a^2 + b^2)
+  theta <- theta * pi / 360
+  pmat <- matrix(c(cos(theta), -sin(theta), sin(theta), cos(theta)), nrow=2)
+  smat <- diag(c(1/a^2, 1/ b^2))
+  sinv <- as.vector(t(pmat) %*% smat %*% pmat)
+  1 / (sqrt(2 * pi) * sdev) * 
+    exp(-0.5 * (sinv[1] * x^2 + (sinv[2]+sinv[3]) * x * y + sinv[4] * y^2)) 
+}
+
+a <- 0.4
+b <- 0.2
+theta <- 30
+x1 <- 0.3
+
+x <- seq(-1, 1, length=101)
+y <- x
+pdf <- outer(x, y, gaussian2d, a, b, theta)
+
+px <- rowMeans(pdf)
+px <- px / sum(px)
+py <- colMeans(pdf)
+py <- py / sum(py)
+pyx <- pdf[which.min(abs(x - x1)),]
+pyx <- pyx / sum(pyx)
+
+clev <- c(0.1, 0.3, 0.5, 0.7)
+contour(x, y, pdf, xlab="x", ylab="y", levels=clev, asp=1)
+
+lines(x, 10 * px - 1.0, type="l")
+lines(10 * py - 1.0, y, type="l")
+abline(v = x1, lty=2)
+lines(10 *  pyx + x1, y, type="l")
+
+text(0.0, 0.0, "P(x,y)", cex=1.5)
+text(0.75, -0.9, "P(x)", cex=1.5)
+text(0.5, 0.9, "P(y|x)", cex=1.5)
+text(-0.8, 0.5, "P(y)", cex=1.5)
+```
+
+- $P(\mathbf{x})$: 状態$\mathbf{x}$の*pdf*。$P(\mathbf{x})\mathrm{d}\mathbf{x}$は、測定をする前に多次元体積$(\mathbf{x}, \mathbf{x}+\mathrm{d}\mathbf{x})$に$\mathbf{x}$が存在する確率。
+測する前において$\mathbf{x}$について分かっている。$\int P(\mathbf{x})\mathrm{d}\mathbf{x}=1$となるように規格化される。
+- $P(\mathbf{y})$: 測定の先験*pdf*。測定前の測定の*pdf*を表す。
+- $P(\mathbf{x},\mathbf{y})$: $\mathbf{x}$と$\mathbf{y}$との同時先験*pdf*。$P(\mathbf{x},\mathbf{y})\mathrm{d}\mathbf{x}\mathrm{d}\mathbf{y}$は，$\mathbf{x}$が$(\mathbf{x},\mathbf{x}+\mathrm{d}\mathbf{x})$に存在し
+かつ$\mathbf{y}$が$(\mathbf{y},\mathbf{y}+\mathrm{d}\mathbf{y})$に存在する確率。
+- $P(\mathbf{y}|\mathbf{x})$: $\mathbf{x}$が与えられたときの$\mathbf{y}$の条件付*pdf*。$P(\mathbf{y}|\mathbf{x})\mathrm{d}\mathbf{x}$は$\mathbf{x}$の値が与えられたとき$\mathbf{y}$が$(\mathbf{y},\mathbf{y}+\mathrm{d}\mathbf{y})$に存在する確率。
+- $P(\mathbf{x}|\mathbf{y})$: $\mathbf{y}$が与えられたときの$\mathbf{x}$の条件付*pdf*。$P(\mathbf{x}|\mathbf{y})\mathrm{d}\mathbf{x}$は$\mathbf{y}$の値が与えられたとき$\mathbf{x}$が$(\mathbf{x},\mathbf{x}+\mathrm{d}\mathbf{x})$に存在する確率。
+
+@fig-bayes において、$P(y|x)$は$x$に対する$y$の函数であり、$\int P(y|x)\mathrm{d}y=1$に規格化されるので、破線に沿った積分$\int P(x,y)\mathrm{d}y = P(x)$で同時分布$P(x,y)$を割ったものに等しい。
+$$
+P(y|x) = \frac{P(x, y)}{P(x)}
+$$ {#eq-P_of_y_given_x}
+
+$P(x|y)$についても同様に表し、@eq-P_of_y_given_x を用いて$P(x, y)$を消去すると、ベイズの定理が得られる。
+$$
+P(x|y) = \frac{P(x, y)}{P(y)} = \frac{P(y|x)P(x)}{P(y)}
+$$ {#eq-P_of_x_given_y}
+@eq-P_of_x_given_y から$P(x, y)$をベクトルに拡張すると次のように書ける。
+$$
+P(\mathbf{x}|\mathbf{y}) = \frac{P(\mathbf{y}|\mathbf{x})P(\mathbf{x})}{P(\mathbf{y})}
+$$ {#eq-bayes}
+
+データ同化を含む逆問題では、$P(\mathbf{x})$及び$P(\mathbf{y}|\mathbf{x})$から$P(\mathbf{x}|\mathbf{y})$を推定する。
+式(@eq-bayes)の分母はスケーリングの定数で、通常は無視できる。
+
+## 最大後験推定
+
+
+スカラーを一つ直接観測し
+
+$$
+y = x + \epsilon
+$$
+
+を得たとする。
+$x$は第一推定値で分散は$\sigma_\mathrm{f}^2$、
+$\epsilon$は観測誤差、観測の分散は$\sigma_\mathrm{o}^2$とする。
+$y$の先験分散は
+$$\sigma_y^2 = \sigma_\mathrm{f}^2 + \sigma_\mathrm{o}^2$$ {#eq-sigma_y}
+である。
+
+$P(y|x)$, $P(x)$, $P(y|x)$がガウス分布(@eq-scalar_gaussian)であるとすると、
+$$
+\begin{aligned}
+-2\ln P(y|x) &= \frac{y-x}{\sigma_\mathrm{o}^2} + \mathrm{const} \\
+-2\ln P(x) &= \frac{x-x^\mathrm{f}}{\sigma_\mathrm{f}^2} + \mathrm{const} \\
+-2\ln P(x|y) &= \frac{x-x^\mathrm{a}}{\sigma_\mathrm{a}^2} + \mathrm{const} 
+\end{aligned}
+$$
+と書ける。
+Bayesの定理(@eq-bayes)を適用すると、$x^2$の係数から
+$$
+\frac{1}{\sigma_\mathrm{a}^2} = \frac{1}{\sigma_\mathrm{o}^2} + \frac{1}{\sigma_\mathrm{f}^2}
+$$ {#eq-1sigma_a}
+を得る。
+分散の逆数は精度の指標で、観測を第一推定値に同化することにより精度が向上することを示している。
+式(@eq-1sigma_a)は
+$$
+\sigma_\mathrm{a}^2 = \frac{\sigma_\mathrm{o}^2\sigma_\mathrm{f}^2}{\sigma_\mathrm{o}^2 + \sigma_\mathrm{f}^2}
+$$ {#eq-sigma_a}
+と表すこともできる。
+一方、$x$の係数から
+$$
+\frac{x^\mathrm{a}}{\sigma_\mathrm{a}^2} = \frac{y}{\sigma_\mathrm{o}^2} + \frac{x^\mathrm{f}}{\sigma_\mathrm{f}^2}
+$$ {#eq-normalized_x_a}
+式(@eq-normalized_x_a)は式(@eq-1sigma_a)を用いて
+$$
+x^\mathrm{a} = x^\mathrm{f} + \frac{\sigma_\mathrm{f}^2}{\sigma_\mathrm{o}^2 + \sigma_\mathrm{f}^2}(y-x^\mathrm{f})
+$$ {#eq-x_a}
+と表すこともできる。
+後験確率密度が最大になるような推定であるので、最大後験推定（MAP: Maximum a posteriori）と呼ばれている。
+最尤推定（ML: maximum likelihood）推定と呼ばれることもあるが、尤度は$P(\mathbf{y}|\mathbf{x})$を指すので、厳密には先験情報がない場合にのみ、MAP推定とML推定が一致する。

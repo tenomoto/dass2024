@@ -1,0 +1,113 @@
+---
+title: "演習課題"
+author: "榎本剛"
+format:
+  revealjs:
+    slide-number: true
+    chalkboard:
+      buttons: false
+    preview-links: auto
+---
+
+## 方針
+
+- 変分法とアンサンブルカルマンフィルタの両方を扱う。
+- 基礎とのつながりを重視する。
+- 数式に対応した簡潔なコードを提供する。
+- 要点をまとめたウェブサイトを準備する。
+
+## 実習項目
+
+- 逐次アンサンブルカルマンフィルタ
+- 観測演算子
+- 随伴モデル
+
+## 逐次アンサンブルカルマンフィルタ
+
+- データ同化を含む逆問題では、<br>$P(\mathbf{x})$及び$P(\mathbf{y}|\mathbf{x})$から$P(\mathbf{x}|\mathbf{y})$を推定。
+- 単一線型観測の最大後験推定
+  * インクリメントを目的変数、<br>イノベーションを説明変数とする線型回帰。
+  * カルマンゲインは回帰直線の傾き。
+- 逐次アンサンブルカルマンフィルタは線型回帰。
+  * アンサンブル調節カルマンフィルタ<br>（EAKF, Anderson 2003）。
+
+## EAKFの計算手順
+
+1. 第一推定値$\mathbf{x}^\mathrm{f}$に観測演算子を作用させて<br>
+観測相当量$h(\mathbf{x}^\mathrm{f})$を作る。
+2. 状態と観測相当量の共分散、観測相当量の分散を計算。
+3. 必要であれば共分散を局所化し、分散を水増しする。
+4. 各変数毎に線型回帰で変化量を計算する。
+5. 解析アンサンブルが解析誤差共分散を表すように<br>アンサンブルを更新する。
+
+## Python版
+
+```{python}
+#| file: ../Python/eakf.py
+#| echo: true
+#| eval: false
+```
+  
+## 風速観測の同化
+
+風速は典型的な非線型観測演算子。
+$$
+|u| = h(u, v) = \sqrt{u^2 + v^2}
+$$ {#eq-model-us}
+
+風速の単一観測を同化する。
+
+- 第一推定値 $\mathbf{x}^\mathrm{f} = (2, 4),\mathrm{ms}^{-1}$
+- アンサンブルメンバー数1000
+- 標準偏差 $\sigma_u = \sigma_v = 2\,\mathrm{ms}^{-1}$
+- 観測 $3\,\mathrm{ms}^{-1}$ 標準偏差 $\sigma_\mathrm{o} = 0.3\,\mathrm{ms}^{-1}$
+
+## EAKFでの同化の例
+
+```{r}
+#| code-fold: true
+#| file: "../R/eakf.R"
+```
+
+```{r}
+#| code-fold: true
+#| file: "../R/run_wind_eakf.R"
+```
+
+## L-96
+
+![](l96pydpac.png)
+
+## 初級
+
+平均、分散・共分散、線型回帰など基本的な統計の知識が前提。
+
+1. 逐次EAKFを実装し、風の単一観測の同化で、3DVarの解と比較する。
+  - 東西風$u$または$v$、風速$|u|$、風速と風向をそれぞれ同化する。
+  - EAKFが線型回帰になっていることを図示する。
+2. Lorenz-63に4DVar及びEAKFを適用し、両者を比較する。
+
+[tenomoto/l63vda](https://github.com/tenomoto/l63vda)
+
+## 中級
+
+データ同化の基礎が前提。
+
+1. Lorenz-96の非線型モデル、接線型モデル、随伴モデルを実装する。
+2. インフレーションと局所化をEAKFに導入する。
+3. 任意のモデルにEAKF、変分法を適用する。
+
+## 環境構築
+
+環境構築に関する指示を用意して準備してもらう。
+
+- 初級Pythonの超初心者にはGoogle Colaboratory。
+- 個人的には、MacはMacPorts、WindowsのPythonは本家バイナリとpip、Fortranは[RTools](https://cran.r-project.org/bin/windows/Rtools/)を推奨。
+- LinuxやWSLは皆様のお知恵を拝借。
+- Condaはライセンスに注意。
+
+## Todo
+
+- 解説ウェブはおよそできている。
+- L-96の接線型モデルと随伴モデルは作成、<br>チェック済だが4DVarはこれから。
+- Pythonは一部、Fortranはこれから。実はRで準備。

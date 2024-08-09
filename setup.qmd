@@ -1,0 +1,18 @@
+---
+title: 環境構築
+---
+
+## Python
+
+Pythonは一般的なプログラミング言語であり、ライブラリを追加する必要がある。数学函数や行列計算にはNumpyを用いる。
+データの描画にはMatplotlibが一般的である。
+入力に対して応答する、対話型の利用をするためには、ipythonとJupyterも併せてインストールすると便利である。
+
+Windowsには、公式サイトの[ダウンロード](https://www.python.org/downloads/)から最新版のインストーラを入手する。
+パソコンのアーキテクチャは64-bitがほとんどだが、古いマシンには32-bitのものもあれば、SurfaceなどARMを採用しているものもある。
+
+```powershell
+pip install numpy matplotlib ipython jupyter
+```
+
+この実習の範囲ではMacでも、公式サイトのには、MacPortsを使ってインストールすることを

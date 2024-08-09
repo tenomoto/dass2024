@@ -1,0 +1,428 @@
+---
+title: 変分法
+---
+
+変分法は @Sasaki:1958 により、物理法則による拘束を課す解析手法として提案され、@Talagrand-Courtier:1987 に制御理論に基づく理論的な裏付けがされている。
+@Lorenc:1986 は、数値天気予報における様々な解析手法を比較し、変分法がベイズ推定から導かれることを指摘している。
+ここでは、@Tsuyuki-Miyoshi:2007 に基づいて、変分法データ同化について述べる。
+
+## 3次元変分法
+
+3次元変分法同化（3DVar: three-dimensional variational assimilation）は、第一推定値$\mathbf{x}^\mathrm{f}$及び観測$\mathbf{y}^\mathrm{o}$が与えらたときに、後験pdfを最大化するものを解析値$\mathbf{x}^\mathrm{a}$とする。
+
+$$
+\DeclareMathOperator*{\argmax}{arg max}
+\begin{aligned}
+\mathbf{x}^\mathrm{a} &= \argmax_\mathbf{x}[p(\mathbf{x}|\mathbf{x}^\mathrm{f},\,\mathbf{y}^\mathrm{o})]\\
+&=\argmax_\mathbf{x}[p(\mathbf{x}^\mathrm{f}|\mathbf{x})p(\mathbf{y}^\mathrm{o}|\mathbf{x})p(\mathbf{x})]
+\end{aligned}
+$$ {#eq-var-3dvar-map}
+ガウス型のpdfを仮定し、負の対数pdfでコスト函数$J(\mathbf{x})$を定義すると、
+$$
+J(\mathbf{x}) = \frac{1}{2}(\mathbf{x}-\mathbf{x}^\mathrm{f})^\mathrm{T}\mathbf{B}^{-1}(\mathbf{x}-\mathbf{x}^\mathrm{f}) + \frac{1}{2}(h(\mathbf{x})-\mathbf{y}^\mathrm{o})^\mathrm{T}\mathbf{R}^{-1}(h(\mathbf{x})-\mathbf{y}^\mathrm{o}) + J_\mathrm{c}(\mathbf{x})
+$$ {#eq-var-3dvar-J}
+となる。
+ここで、$\mathbf{B},\,\mathbf{R}$はそれぞれ背景及び観測誤差共分散行列、$h(\mathbf{x})$は状態変数を観測変数に変換する観測演算子である。
+式(@eq-var-3dvar-J)の右辺第一、二項はそれぞれ第一推定値、観測値からのずれを表す。
+式(@eq-var-3dvar-J)の右辺第三項は、式(@eq-var-3dvar-map)の右辺第三項に対応し、制約項と呼ばれている。
+
+3DVarでは、数値最適化により$J(\mathbf{x})$の最小値として解析値$\mathbf{x}^\mathrm{a}$を求める。
+$h(\mathbf{x})$の接線型演算子を$\mathbf{H}$で表すと、制約項を無視した解析値は
+$$
+\mathbf{x}^\mathrm{a} = \mathbf{x}^\mathrm{f} + (\mathbf{B}^{-1} + \mathbf{H}^\mathrm{T}\mathbf{R}^{-1}\mathbf{H})^\mathrm{-1}\mathbf{H}^\mathrm{T}\mathbf{R}^{-1}[\mathbf{y}^\mathrm{o} - h(\mathbf{x}^\mathrm{f})]
+$$ {#eq-var-3dvar-analysis}
+となる。
+
+## 4次元変分法
+
+4次元変分法同化（4DVar: four-dimensional variational assimilation）では、同化窓と呼ばれる期間に対するMAP推定を行う。
+時刻レベル$i-1$から$i$までの数値モデルによる予報を
+$$
+\mathbf{x}_i = M_{i-1,i}(\mathbf{x}_{i-1})\;i=1,\dots,n
+$$ {#eq-4dvar-model}
+で表す。
+4DVarのコスト函数は
+$$
+J(\mathbf{x_0}) = \frac{1}{2}(\mathbf{x}_0-\mathbf{x}_0^\mathrm{f})^\mathrm{T}\mathbf{B}^{-1}(\mathbf{x}_0-\mathbf{x}_0^\mathrm{f}) + \frac{1}{2}\sum_{i=0}^n(h_i(\mathbf{x}_i)-\mathbf{y}_i^\mathrm{o})^\mathrm{T}\mathbf{R}_i^{-1}(h_i(\mathbf{x}_i)-\mathbf{y}_i^\mathrm{o}) + J_\mathrm{c}(\mathbf{x}_0,\dots,\mathbf{x}_n)
+$$ {#eq-var-4dvar-J}
+で表される。
+予報誤差共分散は、同化窓内において$M$の接線型演算子$\mathbf{M}$で時間発展し、解析値は式(@eq-var-3dvar-analysis)の$\mathbf{B}$を$\mathbf{M}^\mathrm{T}\mathbf{BM}$で置き換えたものとなる。
+
+4DVarでは、解析値を効率的に求めるために、$J(\mathbf{x_0})$の勾配を用いた最適化を用いる[@Talagrand-Courtier:1987]。
+初期値$\mathbf{x}_0$に対する勾配
+$$
+\mathbf{p}_0 = \nabla_{\mathbf{x}_0}J(\mathbf{x}_0)
+$$ {#eq-var-4dvar-nablaJ}
+を随伴方程式を用いて求める。
+随伴変数$\mathbf{p}_{n+1} = \mathbf{0}$を初期値として、時間逆向きに
+$$
+\mathbf{p}_i = \mathbf{M}_i^\mathrm{T}\mathbf{p}_{i+1} + \frac{\partial J}{\partial\mathbf{x}_i}\;i=n,\dots,0
+$$ {#eq-var-4dvar-adj}
+右辺第一項は、接線型モデル$\mathbf{M}_i^\mathrm{T}$で一つ前の時間レベルまで、随伴変数を積分すること表している。
+以下に随伴モデルの作り方を示す。
+
+## 随伴モデル
+
+次の形の常微分方程式を考える。
+
+$$
+\frac{\mathrm{d}\mathbf{w}}{\mathrm{d}t} = N(\mathbf{w}) + \mathbf{Lw} + \mathbf{f}
+$$ {#eq-adj-ode}
+
+状態変数を$\mathbf{w}$、非線型項を$N(\mathbf{w})$、線型項を$\mathbf{Lw}$、強制を$\mathbf{f}$で表している。
+状態変数に摂動を与えた$\mathbf{w}+\delta\mathbf{w}$を(@eq-adj-ode)に代入し、摂動の時間発展$\mathrm{d}\delta\mathbf{w}/\mathrm{d}t=\mathrm{d}(\mathbf{w}+\delta\mathbf{w})/\mathrm{d}t-\mathrm{d}\mathbf{w}/\mathrm{d}t$を求めると接線型モデル（TLM: tangent linear model）が得られる。
+
+$$
+\frac{\mathrm{d}\delta\mathbf{w}}{\mathrm{d}t} = \left(\left.\frac{\partial N}{\partial\mathbf{w}}\right|_\mathbf{w} + \mathbf{L}\right)\delta\mathbf{w}
+$$ {#eq-adj-tl}
+ここで、摂動$\delta\mathbf{w}$が微小であると仮定し、その二次以上の項を無視した。
+強制項$\mathbf{f}$はTLMにはない。
+
+$\partial N/\partial\mathbf{w}|_\mathbf{w} + \mathbf{L}$を改めて$\mathbf{L}$と置き、入力$\delta\mathbf{w}$及び出力$\dot{\delta\mathbf{w}}=\mathrm{d}\delta\mathbf{w}/\mathrm{d}t$を縦に並べたベクトルを用いて行列形式で表す。
+
+$$
+\begin{bmatrix}
+\delta\mathbf{w}\\
+\dot{\delta\mathbf{w}}
+\end{bmatrix} = 
+\begin{bmatrix}
+\mathbf{I} & \mathbf{0}\\
+\mathbf{L} & \mathbf{0}
+\end{bmatrix} \begin{bmatrix}
+\delta\mathbf{w}\\
+\dot{\delta\mathbf{w}}
+\end{bmatrix}
+$$ {#eq-adj-tl-matrix}
+つまり
+$$
+\begin{aligned}
+\delta\mathbf{w} &= \delta\mathbf{w}\\
+\dot{\delta\mathbf{w}} &= \mathbf{L}\delta\mathbf{w}
+\end{aligned}
+$$
+である。
+随伴変数を$\mathbf{w}^\mathrm{a}$とすると、(@eq-adj-tl-matrix)の随伴モデル（ADM, adjoint model）は
+$$
+\begin{bmatrix}
+\mathbf{w}^\mathrm{a}\\
+\dot{\mathbf{w}}^\mathrm{a}
+\end{bmatrix} = 
+\begin{bmatrix}
+\mathbf{I} & \mathbf{L}^\mathrm{T}\\
+\mathbf{0} & \mathbf{0}
+\end{bmatrix} \begin{bmatrix}
+\mathbf{w}^\mathrm{a}\\
+\dot{\mathbf{w}}^\mathrm{a}
+\end{bmatrix}
+$$ {#eq-adj-adjoint}
+と表すことができる。
+すなわち、
+$$
+\begin{aligned}
+\mathbf{w}^\mathrm{a} &= \mathbf{w}^\mathrm{a} + \mathbf{L}^\mathrm{T}\dot{\mathbf{w}}\\
+\dot{\mathbf{w}}^\mathrm{a} &= \mathbf{0}
+\end{aligned}
+$$
+である。
+$\dot{\mathbf{w}}^\mathrm{a} = \mathbf{0}$もADMの一部であり、忘れるとバグの原因となりうる。
+
+## 随伴モデルの作成
+
+上述のように、TLMが行列$\mathbf{L}$で表せる場合は、ADMはその転置$\mathbf{L}^\mathrm{T}$を取ればよい。
+明示的に行列で表さなくても、TLMのソースコードを行毎に逆順にたどりながらADMを作成することもできる。
+ここでは、後で用いる、いくつかの簡単な操作に対する随伴を求める。
+
+### 代入
+
+代入$A=B$の接線型は
+$$
+\begin{bmatrix}
+\delta B \\ \delta A
+\end{bmatrix}=
+\begin{bmatrix}
+1 & 0 \\ 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+\delta B \\ \delta A
+\end{bmatrix}
+$$ {#eq-adj-copy-tl}
+で、その随伴は
+$$
+\begin{bmatrix}
+B^\mathrm{a} \\ A^\mathrm{a}
+\end{bmatrix}=
+\begin{bmatrix}
+1 & 1 \\ 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+B^\mathrm{a} \\ A^\mathrm{a}
+\end{bmatrix}
+$$ {#eq-adj-copy-ad}
+つまり
+$$
+\begin{aligned}
+B^\mathrm{a} &= A^\mathrm{a} + B^\mathrm{a}\\
+A^\mathrm{a} &=0
+\end{aligned}
+$$
+である。
+
+
+### 係数を掛けて和を取る操作
+
+代入$C = \alpha A + \beta B + \gamma D$の接線型は
+$$
+\begin{bmatrix}
+\delta A\\ \delta B \\ \delta D \\ \delta C
+\end{bmatrix} =
+\begin{bmatrix}
+1 & 0 & 0 & 0\\
+0 & 1 & 0 & 0\\
+0 & 0 & 1 & 0\\
+\alpha & \beta & \gamma & 0
+\end{bmatrix}
+\begin{bmatrix}
+\delta A\\ \delta B \\ \delta D \\ \delta C
+\end{bmatrix}
+$$ {#eq-adj-coeff-tl}
+で、その随伴は
+$$
+\begin{bmatrix}
+A^\mathrm{a} \\ B^\mathrm{a} \\ D^\mathrm{a} \\ C^\mathrm{a}
+\end{bmatrix} =
+\begin{bmatrix}
+1 & 0 & 0 & \alpha\\
+0 & 1 & 0 & \beta\\
+0 & 0 & 1 & \gamma\\
+0 & 0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+A^\mathrm{a} \\ B^\mathrm{a} \\ D^\mathrm{a} \\ C^\mathrm{a}
+\end{bmatrix}
+$$ {#eq-adj-coeff-ad}
+つまり
+$$
+\begin{aligned}
+A^\mathrm{a} &= A^\mathrm{a} + \alpha C^\mathrm{a} \\
+B^\mathrm{a} &= B^\mathrm{a} + \beta C^\mathrm{a} \\
+D^\mathrm{a} &= D^\mathrm{a} + \gamma C^\mathrm{a} \\
+C^\mathrm{a} &=0
+\end{aligned}
+$$
+である。
+
+### ループ
+
+TLMの最後の行から逆順にADMを作る。
+ループは添字を逆に回す。
+$i = 1, 2, \cdots, m,\,1\le j \le m$に対して
+
+$$
+\delta x_j = c_1\delta x_1 + c_2\delta x_2 + \cdots + c_ix_i + \cdots + c_m\delta x_m
+$$ {#eq-adj-loop-tl}
+
+の随伴は
+
+$$
+\begin{aligned}
+ x_m^\mathrm{a} &= x_m^\mathrm{a} + c_m x_j^\mathrm{a}\\
+  & \vdots \\
+ x_i^\mathrm{a} &= x_i^\mathrm{a} + c_i x_j^\mathrm{a}\\
+  & \vdots \\
+ x_2^\mathrm{a} &= x_2^\mathrm{a} + c_2 x_j^\mathrm{a}\\
+ x_1^\mathrm{a} &= x_1^\mathrm{a} + c_1 x_j^\mathrm{a}\\
+ x_j^\mathrm{a} &= c_j x_j^\mathrm{a}
+\end{aligned}
+$$ {#eq-adj-loop-ad}
+
+TLMの行の右辺に現れる摂動変数$\delta x_i$に対応して、ADMの行では随伴変数$x_i^\mathrm{a}$が左辺に現れる。
+$x_i^\mathrm{a}$には$x_i^\mathrm{a}$自身に係数$c_i$とTLMの左辺に現れる摂動変数の随伴$x_j^\mathrm{a}$との積を加えたものになる。
+左辺の変数と右辺の変数が場所が入れ替わっている。
+$x_j^\mathrm{a}$は最後に現れる。
+$c_j=0$の場合のように、TLMの右辺に$x_j^\mathrm{a}$がない場合でも、$x_j^\mathrm{a}$に0を割り当てないと、他の部分でエラーを引き起こしうる。
+
+ADMにおける変分演算は、微分演算とは異なり、ある時刻における状態ベクトル全体に対する摂動なので、状態ベクトルの一部が変化しないからといって、それを省略したものはADMとしては正しくない。
+
+## Lorenz-96モデル
+
+Lorenz-96モデル[@Lorenz-Emanuel:1998]
+$$
+\frac{\mathrm{d}X_i}{\mathrm{d}t} = (X_{i+1} - X_{i-2})X_{i-1} - X_i + F
+$$ {#eq-adj-l96}
+のTLMとADMを作る。
+非線型項を$N(X)=(X_{i+1} - X_{i-2})X_{i-1}$を線型化するには、掛け算の一方を順に摂動に置き換えるか、
+$$
+\begin{aligned}
+\frac{\partial N}{\partial X_{i-2}} &= -X_{i-1}\\
+\frac{\partial N}{\partial X_{i-1}} &= X_{i+1}-X_{i-2}\\
+\frac{\partial N}{\partial X_{i-2}} &= X_{i-1}
+\end{aligned}
+$$ {#eq-adj-l96-dN}
+のように微分を計算すれば、次のように求められる。
+$$
+\frac{\mathrm{d}\delta X_i}{\mathrm{d}t} = -X_{i-1}\delta X_{i-2} +  (X_{i+1} - X_{i-2})\delta X_{i-1} + X_{i-1}\delta X_{i+1} - \delta X_i
+$$ {#eq-adj-l96-tl}
+
+(@eq-adj-adjoint)に基づいて、随伴モデルを作る。
+(@eq-adj-l96-tl)の右辺が表す$\mathbf{L}$の随伴$\mathbf{L}^\mathrm{T}$は、$\delta X$の添字が$i$となる行における係数を考えればよい。
+右辺第1、2、3項の$\delta X_{i-2},\,\delta X_{i-1},\,\delta X_{i+1}$なので、それぞれ$+2,\,+1,\,-1$加えれば$i$行目になる。
+さらに、左辺の変数（時間微分）と右辺の変数を入れ替え$\mathbf{L}^\mathrm{T}\dot{\mathbf{w}}^\mathrm{a}$が得られる。
+さらに、(@eq-adj-adjoint)の$\mathbf{I}$に対応して随伴変数を足す必要がある。
+
+L96の随伴モデルを書き下すと
+$$
+X_i^\mathrm{a} = X_i^\mathrm{a} - X_{i+1}\frac{\mathrm{d}X_{i+2}^\mathrm{a}}{\mathrm{d}t} + (X_{i+2} -X_{i-1})\frac{\mathrm{d}X_{i+1}^\mathrm{a}}{\mathrm{d}t}
++X_{i-2}\frac{\mathrm{d}X_{i-1}^\mathrm{a}}{\mathrm{d}t} - \frac{\mathrm{d}X_{i}^\mathrm{a}}{\mathrm{d}t}\\
+$$ {#eq-adj-l96-ad}
+及び
+$$
+\frac{\mathrm{d}X_{i}^\mathrm{a}}{\mathrm{d}t} = 0
+$$
+となる。
+
+## 4次のRunge-Kutta法
+
+$$
+\dot{y} = f(t, y)
+$$ {#eq-adj-rk4-ode}
+
+を4次のRunge-Kutta（RK4）法で積分する。
+$$
+\begin{aligned}
+  y_{n+1} &= y_{n} + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4) \\
+  k_1 &= f(t_n,\,y_n) \\
+  k_2 &= f\left(t_n + \frac{h}{2},\,y_n + \frac{h}{2}k_1\right) \\
+  k_3 &= f\left(t_n + \frac{h}{2},\,y_n + \frac{h}{2}k_2\right) \\
+  k_4 &= f(t_n + h,\,y_n + hk_3) \\
+\end{aligned}
+$$ {#eq-adj-rk4-k}
+
+$k$の係数はButcherの表[@Butcher-Wanner:1996]
+$$
+\begin{array}{c|c}
+\mathbf{c} &\mathbf{A}\\
+\hline
+ & \mathbf{b}^\mathrm{T}
+\end{array}
+$$ {#eq-adj-butcher}
+に整理できる。
+$s$次の陽的Runge-Kutta法は
+$$
+\begin{aligned}
+y_{n+1} &= y_n + h\sum_{i=1}^sb_ik_i\\
+k_i &=f(t_n+c_ih, y_n+ h\sum_{j=1}^{i-1}a_{ij}k_j)
+\end{aligned}
+$$
+と書ける。
+$\mathbf{A}$は対角成分が0である下三角行列になる。
+
+RK4に対するButcherの表は次のようになる。
+$$
+\begin{array}{c|ccccc}
+0 \\
+1/2 & 1/2\\
+1/2 & 0 & 1/2\\
+1   & 0 & 0 & 1\\
+\hline
+ & 1/6 & 1/3 & 1/3 & 1/6
+\end{array}
+$$ {#eq-adj-buther-rk4}
+
+RK4の接線型は次の通りである。
+$$
+\begin{aligned}
+  \delta y_{n+1} &= \delta y_{n} + \frac{h}{6}(\delta k_1 + 2\delta k_2 + 2\delta k_3 + \delta k_4) \\
+  \delta k_1 &= \delta f(t_n,\,y_n,\,\delta y_n) \\
+  \delta k_2 &= \delta f\left(t_n + \frac{h}{2},\,y_n + \frac{h}{2}k_1,\,\delta y_n + \frac{h}{2}\delta k_1\right) \\
+  \delta k_3 &= \delta f\left(t_n + \frac{h}{2},\,y_n + \frac{h}{2}k_2,\,\delta y_n + \frac{h}{2}\delta k_2\right) \\
+  \delta k_4 &= \delta f(t_n + h,\,y_n + hk_3,\,\delta y_n + h\delta k_3)
+\end{aligned}
+$$ {#eq-adj-rk4-tl}
+ここで$\delta f=\partial f/\partial y$は接線型モデルである。
+$\delta k_1,\,\delta k_2,\,\delta k_3,\,\delta k_4$は出力しないので、$\delta y$を更新した後
+$$
+\delta\mathbf{k} \equiv [\delta k_1,\,\delta k_2,\,\delta k_3,\,\delta k_4]^\mathrm{T}=0
+$$
+と置くと、行列形式では
+$$
+\begin{bmatrix}
+\delta\mathbf{k} \\ \delta y
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 & 0 \\
+h\mathbf{b}^\mathrm{T} & 1
+\end{bmatrix}
+\begin{bmatrix}
+\delta\mathbf{k} \\ \delta y
+\end{bmatrix}
+$$ {#eq-adj-rk4-tl-matrix}
+となる。
+
+随伴は
+$$
+\begin{bmatrix}
+\mathbf{k}^\mathrm{a} \\ y^\mathrm{a}
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 & h\mathbf{b}\\
+0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{k}^\mathrm{a} \\ y^\mathrm{a}
+\end{bmatrix}
+$$ {#eq-adj-rk4-ad-matrix}
+つまり、$k_1^\mathrm{a} = hy^\mathrm{a}/6,\,k_2^\mathrm{a} = hy^\mathrm{a}/3,\,k_3^\mathrm{a} = hy^\mathrm{a}/3,\,k_4^\mathrm{a} = hy^\mathrm{a}/6$と初期化される。
+
+$L$を線型演算子、$\alpha$をスカラ係数として
+$C=L(A+\alpha B)$は
+$$
+\begin{bmatrix}
+A \\ B \\ C
+\end{bmatrix} =
+\begin{bmatrix}
+1 & 0 & 0\\
+0 & 1 & 0\\
+L & \alpha L & 0
+\end{bmatrix}
+\begin{bmatrix}
+A \\ B \\ C
+\end{bmatrix}
+$$
+と書けるので、その随伴は
+$$
+\begin{bmatrix}
+A^\mathrm{a} \\ B^\mathrm{a} \\ C^\mathrm{a}
+\end{bmatrix} =
+\begin{bmatrix}
+1 & 0 & L^\mathrm{T}\\
+0 & 1 & \alpha L^\mathrm{T}\\
+0 & 0 & 0
+\end{bmatrix}
+\begin{bmatrix}
+A^\mathrm{a} \\ B^\mathrm{a} \\ C^\mathrm{a}
+\end{bmatrix}
+$$
+つまり$A^\mathrm{a} = A^\mathrm{a} + LC^\mathrm{a},\,B^\mathrm{a} = B^\mathrm{a} + \alpha LC^\mathrm{a},\,C^\mathrm{a}=0$
+である。
+これを用いるとRK4の随伴は次の順序で計算される。
+$$
+\begin{aligned}
+f_4^\mathrm{a} &\equiv f^\mathrm{a}(t_n + h,\,y_n + hk_3,\,k_4^\mathrm{a})\\
+y^\mathrm{a} &= y^\mathrm{a} + f_4^\mathrm{a}\\
+k_3^\mathrm{a} &= k_3^\mathrm{a} + hf_4^\mathrm{a} \\
+k_4^\mathrm{a} &= 0 \\
+f_3^\mathrm{a} &\equiv f^\mathrm{a}\left(t_n + \frac{h}{2},\,y_n + \frac{h}{2}k_2, \,k_3^\mathrm{a}\right)\\
+y^\mathrm{a} &= y^\mathrm{a} + f_3^\mathrm{a}\\
+k_2^\mathrm{a} &= k_2^\mathrm{a} + \frac{h}{2}f_3^\mathrm{a} \\
+k_3^\mathrm{a} &= 0 \\
+f_2^\mathrm{a} &\equiv \delta f^\mathrm{a}\left(t_n + \frac{h}{2},\,y_n + \frac{h}{2}k_1,\, k_2^\mathrm{a}\right)\\
+y^\mathrm{a} &= y^\mathrm{a} + f_2^\mathrm{a}\\
+k_1^\mathrm{a} &= k_1^\mathrm{a} + \frac{h}{2}f_2^\mathrm{a} \\
+k_2^\mathrm{a} &= 0 \\
+y^\mathrm{a} &= y^\mathrm{a} + f^\mathrm{a}(t_n,\,y_n,\,k_1^\mathrm{a})\\
+k_1^\mathrm{a} &= 0
+\end{aligned}
+$$
+

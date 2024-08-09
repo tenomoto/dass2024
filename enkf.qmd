@@ -1,0 +1,121 @@
+---
+title: "アンサンブルカルマンフィルタ"
+---
+
+予報共分散行列を$\mathbf{P}_\mathrm{f}$、線型化された観測演算子を$\mathbf{H}$、観測誤差共分散行列$\mathbf{R}$が与えられたとき、誤差共分散行列は次の式により解析誤差共分散行列$\mathbf{P}_\mathrm{a}$に更新される。
+$$
+\mathbf{P}_\mathrm{a} = [\mathbf{P}_\mathrm{f}^{-1} + \mathbf{H}^\mathrm{T}\mathbf{R}^{-1}\mathbf{H}]^{-1}
+$$ {#eq-enkf-covar}
+添字$\mathrm{f}, \mathrm{a}$はそれぞれ予報（forecast、第一推定値first guess, 、背景値background、先験値 *a priori*, prior）及び解析値（analysis, 後験値 *a posteriori*, posterior）を表す。
+
+アンサンブル平均は
+$$
+\bar{\mathbf{x}}^\mathrm{a} = \mathbf{P}_\mathrm{a}[\mathbf{P}_\mathrm{f}^{-1}\bar{\mathbf{x}}^\mathrm{f} + \mathbf{H}^\mathrm{T}\mathbf{R}^{-1}\mathbf{y}^\mathrm{o}]
+$$ {#eq-enkf-mean}
+
+と表される。
+
+## 2段階同化
+
+個々の観測が独立であれば、$\mathbf{R}$は対角で、一要素ずつ順番に同化しても結果は変わらない[@Anderson:2003]。
+これを利用して、演算を簡略化し、同化を2段階で行う。
+
+1. 単一の測定値をアンサンブル予報から推定した観測変数に同化し、インクリメント（変化量）$\Delta y_i$を求める。ここで$i$はアンサンブルの番号$i=1, \dots N$。
+2. 各状態変数の各アンサンブル標本について、対応するインクリメントを線型回帰で求める。
+状態変数及び観測変数との間に、先験関係がガウス分布であることを仮定し、最小二乗法で直線を当てはめている。
+非線型であることも考えられる観測演算子に対して、線型化を施し逆函数を求めていることに相当する。
+
+$y$の変化に対する$x$の変化の回帰は次のように書ける。
+$$
+\Delta x = \frac{ \mathrm{cov}(x, y)}{\mathrm{var}(y)}\Delta y
+$$ {#eq-enkf-regression}
+
+## 結合状態・観測空間
+
+長さ$n$の状態ベクトル$\mathbf{x}$及び、それから求めた長さ$m$の観測相当量$\mathbf{y}=h(\mathbf{x})$を結合した長さ$k+m$のベクトル
+$$
+\mathbf{z} = \begin{bmatrix}\mathbf{x}\\h(\mathbf{x})\end{bmatrix}
+$$
+を考える。
+その共分散は
+$$
+\boldsymbol\Sigma_\mathrm{a} = [\boldsymbol\Sigma_\mathrm{f}^{-1} + \mathbf{H}^\mathrm{T}\mathbf{R}^{-1}\mathbf{H}]^{-1}
+$$ {#eq-enkf-sigma_a}
+アンサンブル平均は
+$$
+\bar{\mathbf{z}}^\mathrm{a} = \boldsymbol\Sigma_\mathrm{a}[\boldsymbol\Sigma_\mathrm{f}^{-1}\bar{\mathbf{z}}^\mathrm{f} + \mathbf{H}^\mathrm{T}\mathbf{R}^{-1}\mathbf{y}^\mathrm{o}]
+$$ {#eq-enkf-zbar_a}
+と表される。
+
+1個のスカラー観測に対しては、$\boldsymbol\Sigma_\mathrm{f},\,\boldsymbol\Sigma_\mathrm{a}$の左上から$n\times n$の部分は、それぞれ$\mathbf{P}_\mathrm{f},\,\mathbf{P}_\mathrm{a}$であり、$k$列目は変数間の共分散$\mathbf{s}^\mathrm{f},\,\mathbf{s}^\mathrm{a}$、$\mathbf{s}^\mathrm{f}_k=s^\mathrm{f},\,\mathbf{s}^\mathrm{a}_k=s^\mathrm{a}$は$\mathbf{y}^\mathrm{f}=h(\mathbf{x}^\mathrm{f}),\,\mathbf{y}^\mathrm{a}=h(\mathbf{x}^\mathrm{a})$の分散を表す。
+線型演算子$\mathbf{H}=\begin{bmatrix}0&0&\dots&1\end{bmatrix}$は最後の要素$y$を取り出す$1\times k$の行列である。
+観測誤差共分散行列$\mathbf{R}$はスカラーの分散$r$で表される。
+
+式(@eq-enkf-sigma_a), (@eq-enkf-zbar_a)はそれぞれ、
+$$
+\boldsymbol\Sigma_\mathrm{a} = \left(\mathbf{I} - \frac{1}{r + s^\mathrm{f}}\boldsymbol\Sigma^{0k}_\mathrm{f}\right)\boldsymbol\Sigma_\mathrm{f},
+$$ {#eq-enkf-sigma_a1}
+
+$$
+\Delta\bar{\mathbf{z}} = \mathbf{z}^\mathrm{a} - \mathbf{z}^\mathrm{f} = \frac{y^\mathrm{o}-\bar{y}^\mathrm{f}}{r + s^\mathrm{f}}\mathbf{s}^\mathrm{f}
+$$ {#eq-enkf-zbar_a1}
+と簡単になる。ここで
+$$
+\boldsymbol\Sigma^{0k}_\mathrm{f} = \boldsymbol\Sigma_\mathrm{f}\mathbf{H}^\mathrm{T}\mathbf{H}
+$$
+は、$\boldsymbol\Sigma_\mathrm{f}$の1から$n$列目を0とし、$k$列目だけを残した行列である。
+観測変数の分散は
+$$
+s^\mathrm{a} = \frac{1}{1/s^\mathrm{f} + 1/r} = \frac{s^\mathrm{f}r}{s^\mathrm{f} + r}
+$$ {#eq-enkf-sa}
+解析値は
+$$
+\bar{y}^\mathrm{a} = s^\mathrm{a}(\bar{y}^\mathrm{f}/s^\mathrm{f} + y^\mathrm{o}/r) = \frac{1}{s^\mathrm{f} +r}(r\bar{y}^\mathrm{f} + s^\mathrm{f}y^\mathrm{o})
+$$ {#eq-enkf-ya}
+観測変数のインクリメントは
+$$
+\Delta\bar{y}=\bar{y}^\mathrm{a} - \bar{y}^\mathrm{f} =\frac{s^\mathrm{f}}{s^\mathrm{f} + r}(y^\mathrm{o} - \bar{y}^\mathrm{f})
+$$ {#eq-enkf-deltay}
+となる。
+一方、状態変数は
+$$
+\Delta\bar{x} = \bar{x}^\mathrm{a} - \bar{x}^\mathrm{f} = \frac{[s^\mathrm{f}_1, \dots, s^\mathrm{f}_n]^\mathrm{T}}{s^\mathrm{f} + r}(y^\mathrm{o} - \bar{y}^\mathrm{f}) = \frac{[s^\mathrm{f}_1, \dots, s^\mathrm{f}_n]^\mathrm{T}}{s^\mathrm{f} + r}\Delta\bar{y}
+$$ {#eq-enkf-deltax}
+となる。
+これは、それぞれの状態変数に対する線型回帰(@eq-enkf-regression)に他ならない。
+
+## 摂動法
+
+確率的（stochastic）もしくはモンテルカルロ法に基づくアンサンブルカルマンフィルタ[@Evensen:1994;@Houtekamer-Mitchell:1998;@Burgers-etal:1998]では、観測に摂動を加えるため摂動法（PO: perturbed observation）と呼ばれている。
+@Vetra-Carvalho-etal:2018 は、観測$y^\mathrm{o}$には測定誤差があり、それに伴う確率分布を持っているので、予測の観測推定量$\mathbf{y}$に摂動を加えると解釈する方が適切であるとしているが、ここでは前者に従い、平均と分散が$y^\mathrm{o},\,r$となる正規分布で誤差を与える。
+$$
+\mathbf{y}^\mathrm{o} \sim N(y^\mathrm{o}, r)
+$$
+
+各メンバーに対して線型回帰(@eq-enkf-deltax)を適用して解析値を求める。
+
+## 決定論フィルタ
+
+観測に摂動を与えることに伴う標本誤差[@Whitaker-Hamill:2002]を回避する平方根フィルタが複数考案された[Tippet-etal:2003]。
+ここでは、スカラー観測を逐次に同化するアンサンブル調節カルマンフィルタ[@Anderson:2003]を示す。
+
+アンサンブル平均からの偏差を$\delta$で表す。
+観測変数の予報分散は$s^\mathrm{f}$、解析分散は(@eq-enkf-sa)なので、その比
+$$
+\alpha = \sqrt{\frac{r}{r + s^\mathrm{f}}}
+$$ {#eq-enkf-alpha}
+を用いると、メンバー$i$の解析インクリメントは
+$$
+\delta \mathbf{y}_i = \delta \mathbf{y}_i^\mathrm{a} -\delta \mathbf{y}_i^\mathrm{f} = (\alpha - 1) \delta \mathbf{y}_i^\mathrm{f}
+$$ {#eq-enkf-deltay}
+となる。
+摂動のインクリメントは、線型回帰により
+$$
+\Delta \mathbf{z}_{i} = \frac{\mathbf{s}^\mathrm{f}}{s^\mathrm{f}}\Delta \mathbf{y}_i = \frac{\mathbf{s}^\mathrm{f}}{s^\mathrm{f}}(\alpha - 1)\delta \mathbf{y}^\mathrm{f}_i
+$$ {#eq-enkf-deltaz}
+平均のインクリメント(@eq-enkf-zbar_a1)を加えてアンサンブルを更新する。
+$$
+\mathbf{z}^\mathrm{a}_i = \mathbf{z}^\mathrm{f}_i + \frac{\mathbf{s}^\mathrm{f}}{r + s^\mathrm{f}}(y^\mathrm{o} - \bar{y}^\mathrm{f}) + \frac{\mathbf{s}^\mathrm{f}}{s^\mathrm{f}}(\alpha - 1)(\mathbf{y}^\mathrm{f}_i - \bar{y}^\mathrm{f})
+$$ {#eq-enkf-eakf}
+
+
