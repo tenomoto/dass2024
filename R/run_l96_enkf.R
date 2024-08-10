@@ -1,5 +1,6 @@
 source("l96.R")
 source("enkf.R")
+source("eakf.R")
 source("dist.R")
 source("eval.R")
 
@@ -13,6 +14,11 @@ nt <- 1000
 
 r <- 4
 dt <- 0.05
+
+#fil <- "eakf"
+#a <- 4
+#infl <- 1.01
+fil <- "enkf"
 a <- 2
 infl <- 1.03
 
@@ -25,16 +31,20 @@ for (i in 1:ne) {
 e1 <- rep(0, nt)
 e2 <- rep(0, nt)
 st <- rep(0, nt)
-for (k in 1:(nt)) {
+for (k in 1:nt) {
   yo <- rnorm(ns, xt, sqrt(r))
   dz <- matrix(rep(0, ne * (nrow(xf) + 1)), ncol=ne)
   for (j in 1:length(yo)) {
     zf <- rbind(xf, xf[j,])
     d <- linear.periodic.dist(1:ns, j)
     loc.inf <- c(ga(d, a), infl)
-    yo.p <- rnorm(ne, yo[j], sqrt(r))
-    yo.p <- yo.p - mean(yo.p) + yo[j]
-    dz <- dz + enkf.analysis(zf, yo.p, r, loc.inf)
+    if (fil == "enkf") {
+      yo.p <- rnorm(ne, yo[j], sqrt(r))
+      yo.p <- yo.p - mean(yo.p) + yo[j]
+      dz <- dz + enkf.analysis(zf, yo.p, r, loc.inf)
+    } else {
+      dz <- dz + eakf.analysis(zf, yo, r, loc.inf)
+    }
   }
   xa <- xf + dz[1:ns,]
   e <- calc.error(xa, xt)
@@ -49,7 +59,7 @@ for (k in 1:(nt)) {
   }
 }
 
-title <- paste("EnKF", "ne=", ne, "infl=", infl, "loc=", a)
+title <- paste(fil, "ne=", ne, "infl=", infl, "loc=", a)
 plot(1:nt, e1, lwd=2,
      main=title, xlab="step", ylab="L2", type="l", ylim=c(0, 3))
 abline(h=1.0, lt=2)

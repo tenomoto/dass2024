@@ -27,7 +27,6 @@ dt = 0.05
 a = 0.1
 g_break = 1e-8
 
-# Initial conditions
 xt = l96.fom(rng.normal(size=ns), nt_spinup, dt, F)
 x0 = l96.fom(rng.normal(size=ns), nt_spinup, dt, F)
 
@@ -66,6 +65,7 @@ for k in range(nc):
             break
         if cost > cost_old:
             xb[:, 0] += a * ad
+            e[k] = np.sqrt(np.mean((xb[:, 0] - xt0)**2))
             break
         cost_old = cost
     

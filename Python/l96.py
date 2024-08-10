@@ -4,10 +4,10 @@ import rk4
 def nl(t, x, F=8):
     return (np.roll(x, -1) - np.roll(x, 2)) * np.roll(x, 1) - x + F
 
-def tl(t, x, dx):
+def tl(t, x, dx, *args):
     return (np.roll(dx, -1) - np.roll(dx, 2)) * np.roll(x, 1) + (np.roll(x, -1) - np.roll(x, 2)) * np.roll(dx, 1) - dx
 
-def ad(t, x, dxa):
+def ad(t, x, dxa, *args):
     return -np.roll(x, -1) * np.roll(dxa, -2) + (np.roll(x, -2) - np.roll(x, 1)) * np.roll(dxa, -1) + np.roll(x, 2) * np.roll(dxa, 1) - dxa
 
 def fom(x, nstep, dt, F):
@@ -17,17 +17,17 @@ def fom(x, nstep, dt, F):
         t += dt
     return x
 
-def tlm(x, dx, nstep, dt):
+def tlm(x, dx, nstep, dt, F):
     t = 0
     for i in range(nstep):
-        dx = rk4.tl(nl, tl, t, x, dx, dt)
+        dx = rk4.tl(nl, tl, t, x, dx, dt, F)
         t += dt
     return dx
 
-def adm(x, xa, nstep, dt):
+def adm(x, xa, nstep, dt, F):
     t = nstep
     for i in range(nstep, 0, -1):
-        xa = rk4.ad(nl, ad, t, x, xa, dt)
+        xa = rk4.ad(nl, ad, t, x, xa, dt, F)
         t -= dt
     return xa
 
@@ -46,11 +46,11 @@ def test(a=1e-5):
     dx0 = a * rng.normal(size=ns)
 #    dx0 = a * np.ones(ns)
     x1 = fom(x0 + dx0, 1, dt, F)
-    dx = tlm(x0, dx0, 1, dt)
+    dx = tlm(x0, dx0, 1, dt, F)
     e = np.sqrt(np.sum((x1 - x - dx)**2))
     print(f"TLM: a={a} l2={e}")
     
-    xa = adm(x0, dx, 1, dt)
+    xa = adm(x0, dx, 1, dt, F)
     tdxdx = np.dot(dx.T, dx)
     dx0xa = np.dot(dx0.T, xa)
     print(f"ADJ: dt^t dx - t(dx0) xa = {tdxdx} - {dx0xa} = {tdxdx - dx0xa}")
