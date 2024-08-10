@@ -1,0 +1,27 @@
+&random
+seed = 514
+/
+
+&l96
+ns = 40
+dt = 0.05d0
+F = 8.0d0
+nt = 1000
+/
+
+&var
+b = 1.0d0
+r = 4.0d0
+nw = 4
+nc = 250
+/
+
+&opt
+ni = 100
+a = 0.1
+gb = 1.0d-8
+/
+
+&io
+save_state = .false.
+/

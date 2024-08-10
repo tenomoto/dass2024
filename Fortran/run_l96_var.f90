@@ -7,7 +7,7 @@ program run_l96
 
   integer :: seed, ns, nt, nw, nc, ni, i, j, k
   real(dp) :: dt, F, b, r, a, gb, cost, cost_old, gnorm
-  real(dp), allocatable ::  xt(:), xt0(:), x0(:), rsd(:), &
+  real(dp), allocatable ::  xt(:), xt0(:), x0(:), &
     ad(:), yo(:,:), xb(:,:), d(:,:), l2(:)
   logical :: save_state
 
@@ -32,15 +32,14 @@ program run_l96
   print io
   close(unit=un)
 
-  if (save_state)
+  if (save_state) then
     call io_delete_file("xt.dat")
     call io_delete_file("x0.dat")
     call io_delete_file("xa.dat")
   endif
 
-  allocate(xt(ns), xt0(ns), x0(ns), rsd(ns), &
+  allocate(xt(ns), xt0(ns), x0(ns), &
     ad(ns), yo(ns, nw), xb(ns, nw), d(ns, nw), l2(nc))
-  rsd = sqrt(r)
   call random_set_seed(seed)
   xt = l96_fom(rnorm(ns), nt, dt, F)
   x0 = l96_fom(rnorm(ns), nt, dt, F)
@@ -52,7 +51,7 @@ program run_l96
       call io_write_binary("x0.dat", x0)
     end if
     do j = 1, nw
-      yo(:, j) = rnorm(ns, xt, rsd)
+      yo(:, j) = xt + sqrt(r) * rnorm(ns)
       xt = l96_fom(xt, 1, dt, F)
     end do 
     if (save_state) then
@@ -91,6 +90,13 @@ program run_l96
   call io_delete_file("l2.dat")
   call io_write_binary("l2.dat", l2)
   deallocate(xt, xt0, x0, ad, yo, xb, d, l2)
+
+  open(unit=un, file="config.R", access="stream", form="formatted", & 
+    status="replace", action="write")
+  write(un, *) "nw <-", nw
+  write(un, *) "nc <-", nc
+  write(un, *) "a <-", a
+  close(un)
 
 contains
 

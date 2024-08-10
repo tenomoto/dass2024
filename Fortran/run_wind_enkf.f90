@@ -46,6 +46,15 @@ program run_wind_enkf
   end do
   deallocate(yo_p, u, v, zf, za)
 
+  open(unit=un, file="config.R", access="stream", form="formatted", & 
+    status="replace", action="write")
+  write(un, *) "ne <-", ne
+  write(un, *) "k <-", k
+  write(un, *) "yo <-", yo
+  write(un, *) "so <-", so
+  write(un, *) "fil <-'", fil, "'"
+  close(un)
+
 contains
 
   function calc_speed(u, v) result(us)
