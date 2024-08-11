@@ -1,11 +1,11 @@
-program run_l96
+program run_l96_var
   use, intrinsic :: iso_fortran_env, only: dp => real64
   use io_module, only: io_write_binary, io_read_binary, io_delete_file
   use random_module, only: random_set_seed, rnorm => random_normal
   use l96_module, only: l96_fom, l96_adm
   implicit none
 
-  integer :: seed, ns, nt, nw, nc, ni, i, j, k
+  integer :: seed, ns, nt_spinup, nt, nw, nc, ni, i, j, k
   real(dp) :: dt, F, b, r, a, gb, cost, cost_old, gnorm
   real(dp), allocatable ::  xt(:), xt0(:), x0(:), &
     ad(:), yo(:,:), xb(:,:), d(:,:), l2(:)
@@ -14,8 +14,10 @@ program run_l96
   character(len=*), parameter :: nml = "l96.nml"
   integer, parameter :: un = 31
   namelist /random/ seed
-  namelist /l96/ ns, dt, F, nt
-  namelist /var/ b, r, nw, nc
+  namelist /l96/ ns, dt, F
+  namelist /run/ nt_spinup, nt
+  namelist /var/ b, nw
+  namelist /obs/ r
   namelist /opt/ ni, a, gb
   namelist /io/ save_state
 
@@ -24,13 +26,19 @@ program run_l96
   print random
   read(unit=un, nml=l96)
   print l96
+  read(unit=un, nml=run)
+  print run
   read(unit=un, nml=var)
   print var
+  read(unit=un, nml=obs)
+  print obs
   read(unit=un, nml=opt)
   print opt
   read(unit=un, nml=io)
   print io
   close(unit=un)
+  nc = nt / nw
+  print *, "nc=", nc
 
   if (save_state) then
     call io_delete_file("xt.dat")
@@ -41,8 +49,8 @@ program run_l96
   allocate(xt(ns), xt0(ns), x0(ns), &
     ad(ns), yo(ns, nw), xb(ns, nw), d(ns, nw), l2(nc))
   call random_set_seed(seed)
-  xt = l96_fom(rnorm(ns), nt, dt, F)
-  x0 = l96_fom(rnorm(ns), nt, dt, F)
+  xt = l96_fom(rnorm(ns), nt_spinup, dt, F)
+  x0 = l96_fom(rnorm(ns), nt_spinup, dt, F)
   do k = 1, nc
     print "(a, i5)", "cycle=", k
     xt0 = xt
@@ -115,4 +123,4 @@ contains
 
   end function calc_cost
 
-end program run_l96
+end program run_l96_var
