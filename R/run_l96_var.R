@@ -1,23 +1,7 @@
 source("l96.R")
+source("config_l96.R")
 
-seed <- 514
-set.seed(seed)
-
-ns <- 40
-F <- 8
-
-nw <- 4
-nt <- 1000
-nc <- 250
-nt <- nc * nw
-ni <- 100
-
-r <- 4
-b <- 1
-dt <- 0.05
-a <- 0.1
-g.break <- 1e-8
-
+nc <- nt %/% nw
 calc.cost <- function(dx, b, dy, r) {
   cost <- 0.5 * t(dx) %*% dx / b
   for (i in 1:ncol(dy)) {
@@ -26,8 +10,12 @@ calc.cost <- function(dx, b, dy, r) {
   as.numeric(cost)
 }
 
-xt <- l96.fom(rnorm(ns), nt, dt, F)
-x0 <- l96.fom(rnorm(ns), nt, dt, F)
+con.true <- file("xt_l96.dat", "rb")
+xt <- readBin(con.true, "numeric", ns)
+con.obs <- file("yo_l96.dat", "rb")
+con <- file("xf_l96.dat", "rb")
+x0 <- readBin(con, "numeric", ns)
+close(con)
 
 yo <- matrix(rep(0, ns*nw), ncol=nw)
 xb <- matrix(rep(0, ns*nw), ncol=nw)
@@ -38,8 +26,8 @@ for (k in 1:nc){
   cat("cycle=", k, "\n")
   xt0 = xt
   for (j in 1:nw){
-    yo[, j] <- rnorm(ns, xt, sqrt(r))
-    xt <- l96.fom(xt, 1, dt, F)
+    yo[, j] <- readBin(con.obs, "numeric", ns)
+    xt <- readBin(con.true, "numeric", ns)
   }
   xb[, 1] <- x0
   for (i in 1:ni) {
@@ -71,11 +59,9 @@ for (k in 1:nc){
   }
   x0 <- l96.fom(xb[, 1], nw + 1, dt, F)
 }
+close(con.true)
+close(con.obs)
 
-title <- paste("4DVar", "step=", a)
-plot(seq(1, nt, by=nw), l2, type="l", main=title,
-     xlab="time", ylab="l2", ylim=c(0, 3))
-abline(h=1, lt=2)
-abline(h=mean(l2), lt=3)
-legend("topleft", legend=c("analysis", paste("mean", format(mean(e), digits=3)), "observation"),
-       lty=c(1, 3, 2))
+con.out <- file("l96_var.dat", "wb")
+writeBin(l2, con.out)
+close(con.out)

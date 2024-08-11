@@ -18,7 +18,7 @@ b = 1.0d0
 nw = 4
 /
 
-&enkf
+&ens
 ne = 20
 fil = "enkf"
 /
