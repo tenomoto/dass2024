@@ -1,5 +1,6 @@
 module io_module
-  use, intrinsic :: iso_fortran_env, only: dp => real64
+  use, intrinsic :: iso_fortran_env, only: &
+    dp => real64, fss => file_storage_size
   implicit none
 
   integer, parameter :: u = 51
@@ -24,13 +25,18 @@ contains
 
   end subroutine io_write_binary
 
-  subroutine io_read_binary(fname, x)
+  subroutine io_read_binary(fname, x, skip)
     character(len=*), intent(in) :: fname
     real(dp), intent(inout) :: x(:)
+    integer, intent(in), optional :: skip
 
     open(unit=u, file=fname, access="stream", form="unformatted", &
       status="old", action="read")
-    read(unit=u) x
+    if (.not. present(skip)) then
+      read(unit=u) x
+    else
+      read(unit=u, pos=skip*fss+1) x
+    end if
     close(unit=u)
 
   end subroutine io_read_binary

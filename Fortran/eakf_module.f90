@@ -4,9 +4,10 @@ module eakf_module
 
 contains
 
-  function eakf_analysis(zf, yo, r) result(dz)
-    real(dp), dimension(:,:), intent(in) :: zf
+  function eakf_analysis(zf, yo, r, loc_inf) result(dz)
+    real(dp), intent(in) :: zf(:, :)
     real(dp), intent(in) :: yo, r
+    real(dp), intent(in) :: loc_inf(:)
 
     real(dp), dimension(:,:), allocatable :: dz
 
@@ -20,11 +21,11 @@ contains
 
     allocate(zf_mean(k), zf_anom(k, ne), s(k), &
       dz_mean(k), dz(k, ne))
-    zf_mean(:) = sum(zf, 2)
+    zf_mean(:) = sum(zf, 2) / ne
     do i = 1, ne
       zf_anom(:, i) = zf(:, i) - zf_mean(:)
     end do
-    s = matmul(zf_anom, zf_anom(k, :)) / (ne - 1)
+    s = loc_inf * matmul(zf_anom, zf_anom(k, :)) / (ne - 1)
     alpha = sqrt(r / (r + s(k)))
     dz_mean  = s / (r + s(k)) * (yo - zf_mean(k))
     dz = spread(dz_mean, 2, ne) + (alpha - 1) / s(k) * &

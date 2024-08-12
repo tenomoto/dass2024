@@ -11,7 +11,6 @@ calc.cost <- function(dx, b, dy, r) {
 }
 
 con.true <- file("xt_l96.dat", "rb")
-xt <- readBin(con.true, "numeric", ns)
 con.obs <- file("yo_l96.dat", "rb")
 con <- file("xf_l96.dat", "rb")
 x0 <- readBin(con, "numeric", ns)
@@ -24,11 +23,11 @@ l2 <- rep(0, nc)
 
 for (k in 1:nc){
   cat("cycle=", k, "\n")
-  xt0 = xt
-  for (j in 1:nw){
-    yo[, j] <- readBin(con.obs, "numeric", ns)
-    xt <- readBin(con.true, "numeric", ns)
+  xt0 <- readBin(con.true, "numeric", ns)
+  for (j in 2:nw){
+      xt <- readBin(con.true, "numeric", ns)
   }
+  yo <- matrix(readBin(con.obs, "numeric", ns*nw), nrow=ns)
   xb[, 1] <- x0
   for (i in 1:ni) {
     for (j in 2:nw){
@@ -52,7 +51,7 @@ for (k in 1:nc){
     }
     if (cost > cost.old) {
       xb[, 1] <- xb[, 1] + a * ad
-      e[k] <- sqrt(mean((xb[, 1] - xt0)^2))
+      l2[k] <- sqrt(mean((xb[, 1] - xt0)^2))
       break
     }
     cost.old <- cost

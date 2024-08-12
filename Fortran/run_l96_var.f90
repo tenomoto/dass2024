@@ -1,70 +1,49 @@
 program run_l96_var
   use, intrinsic :: iso_fortran_env, only: dp => real64
-  use io_module, only: io_write_binary, io_read_binary, io_delete_file
-  use random_module, only: random_set_seed, rnorm => random_normal
   use l96_module, only: l96_fom, l96_adm
   implicit none
 
-  integer :: seed, ns, nt_spinup, nt, nw, nc, ni, i, j, k
+  integer, parameter :: &
+    un=31, un_xt = 51, un_yo = 52, un_xf = 53
+  character(len=*), parameter :: &
+    nml = "l96.nml", fname = "l96_var.dat"
+  integer :: ns, nt_spinup, nt, nw, nc, ni, i, j, k
   real(dp) :: dt, F, b, r, a, gb, cost, cost_old, gnorm
   real(dp), allocatable ::  xt(:), xt0(:), x0(:), &
     ad(:), yo(:,:), xb(:,:), d(:,:), l2(:)
-  logical :: save_state
+  character(len=256) :: xt_fname, yo_fname, xf_fname
 
-  character(len=*), parameter :: nml = "l96.nml"
-  integer, parameter :: un = 31
-  namelist /random/ seed
-  namelist /l96/ ns, dt, F
-  namelist /run/ nt_spinup, nt
-  namelist /var/ b, nw
-  namelist /obs/ r
-  namelist /opt/ ni, a, gb
-  namelist /io/ save_state
+  namelist /l96/ ns, dt, F, nt_spinup, nt, r
+  namelist /var/ b, nw, ni, a, gb
+  namelist /io/ xt_fname, yo_fname, xf_fname
 
   open(unit=un, file=nml, status="old")
-  read(unit=un, nml=random)
-  print random
   read(unit=un, nml=l96)
   print l96
-  read(unit=un, nml=run)
-  print run
   read(unit=un, nml=var)
   print var
-  read(unit=un, nml=obs)
-  print obs
-  read(unit=un, nml=opt)
-  print opt
   read(unit=un, nml=io)
   print io
   close(unit=un)
   nc = nt / nw
   print *, "nc=", nc
 
-  if (save_state) then
-    call io_delete_file("xt.dat")
-    call io_delete_file("x0.dat")
-    call io_delete_file("xa.dat")
-  endif
-
   allocate(xt(ns), xt0(ns), x0(ns), &
     ad(ns), yo(ns, nw), xb(ns, nw), d(ns, nw), l2(nc))
-  call random_set_seed(seed)
-  xt = l96_fom(rnorm(ns), nt_spinup, dt, F)
-  x0 = l96_fom(rnorm(ns), nt_spinup, dt, F)
+  open(unit=un_xt, file=xt_fname, access="stream", &
+    form="unformatted", status="old", action="read")
+  open(unit=un_yo, file=yo_fname, access="stream", &
+    form="unformatted",  status="old", action="read")
+  open(unit=un_xf, file=xf_fname, access="stream", &
+    form="unformatted", status="old", action="read")
+  read(unit=un_xf) x0
   do k = 1, nc
     print "(a, i5)", "cycle=", k
-    xt0 = xt
-    if (save_state) then
-      call io_write_binary("xt.dat", xt)
-      call io_write_binary("x0.dat", x0)
-    end if
-    do j = 1, nw
-      yo(:, j) = xt + sqrt(r) * rnorm(ns)
-      xt = l96_fom(xt, 1, dt, F)
+    read(unit=un_xt) xt0
+    read(unit=un_yo) yo
+    do j = 2, nw
+      read(unit=un_xt) xt
     end do 
-    if (save_state) then
-      call io_write_binary("yo.dat", yo(:, 1))
-    end if
     xb(:, 1) = x0
     do i = 1, ni
       do j = 2, nw
@@ -90,17 +69,19 @@ program run_l96_var
       end if
       cost_old = cost  
     end do
-    if (save_state) then
-      call io_write_binary("xa.dat", xb(:, 1))
-    end if
     x0 = l96_fom(xb(:, 1), nw + 1, dt, F)
   end do
-  call io_delete_file("l2.dat")
-  call io_write_binary("l2.dat", l2)
+  close(un_xt)
+  close(un_yo)
+  close(un_xf)
+  open(unit=un, file=fname, access="stream", &
+    form="unformatted", status="replace", action="write")
+  write(unit=un) l2
+  close(un)
   deallocate(xt, xt0, x0, ad, yo, xb, d, l2)
 
-  open(unit=un, file="config.R", access="stream", form="formatted", & 
-    status="replace", action="write")
+  open(unit=un, file="confplot_l96_var.R", access="stream", &
+    form="formatted", status="replace", action="write")
   write(un, *) "nw <-", nw
   write(un, *) "nc <-", nc
   write(un, *) "a <-", a

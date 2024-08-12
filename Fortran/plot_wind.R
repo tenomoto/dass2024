@@ -1,4 +1,4 @@
-source("config.R")
+source("confplot_wind.R")
 
 title <- paste(fil, "ne=", ne)
 fname <- paste0("wind_", fil, ".png")

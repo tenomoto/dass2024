@@ -1,15 +1,15 @@
-source("config.R")
+source("confplot_l96_var.R")
 
-title <- paste("4DVar", "step=", a)
-fname <- "l2_l96_var.png"
+title <- paste("Var", "step=", a)
+pngname <- "l96_var.png"
 w <- 1024
 h <-  800
 
-l2 <- readBin("l2.dat", "numeric", nc)
+l2 <- readBin("l96_var.dat", "numeric", nc)
 
-png(fname, w, h)
+png(pngname, w, h)
 plot(seq(1, nw * nc, by=nw), l2, type="l", lwd=3,
-     main=title, xlab="time", ylab="l2", ylim=c(0, 3),
+     main=title, xlab="time", ylab="L2", ylim=c(0, 3),
      cex.lab=2, cex.axis=2, cex.main=3)
 abline(h=1, lty=2, lwd=2)
 abline(h=mean(l2), lty=3, lwd=2)

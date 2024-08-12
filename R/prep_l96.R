@@ -1,15 +1,15 @@
 source("l96.R")
 source("config_l96.R")
 
+seed <- 514
 set.seed(seed)
 
 xt <- l96.fom(rnorm(ns), nt.spinup, dt, F)
 con.ens <- file("xf_l96.dat", "wb")
-xf <- matrix(rep(0, ns * ne), nrow=ns)
 for (i in 1:ne) {
-  xf[,i] <- l96.fom(rnorm(ns), nt.spinup, dt , F)
+  xf <- l96.fom(rnorm(ns), nt.spinup, dt , F)
+  writeBin(xf, con.ens)
 }
-writeBin(as.vector(xf), con.ens)
 close(con.ens)
 
 con.true <- file("xt_l96.dat", "wb")
