@@ -19,4 +19,9 @@ fil <- "eakf"
 c.loc <- 4
 infl <- 1.01
 
+# io
+xt_fname <- "xt_l96.dat"
+yo_fname <- "yo_l96.dat"
+xf_fname <- "xf_l96.dat"
+
 

@@ -10,9 +10,9 @@ calc.cost <- function(dx, b, dy, r) {
   as.numeric(cost)
 }
 
-con.true <- file("xt_l96.dat", "rb")
-con.obs <- file("yo_l96.dat", "rb")
-con <- file("xf_l96.dat", "rb")
+con.true <- file(xt_fname, "rb")
+con.obs <- file(yo_fname, "rb")
+con <- file(xf_fname, "rb")
 x0 <- readBin(con, "numeric", ns)
 close(con)
 

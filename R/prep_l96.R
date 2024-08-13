@@ -5,15 +5,15 @@ seed <- 514
 set.seed(seed)
 
 xt <- l96.fom(rnorm(ns), nt.spinup, dt, F)
-con.ens <- file("xf_l96.dat", "wb")
+con.ens <- file(xf_fname, "wb")
 for (i in 1:ne) {
   xf <- l96.fom(rnorm(ns), nt.spinup, dt , F)
   writeBin(xf, con.ens)
 }
 close(con.ens)
 
-con.true <- file("xt_l96.dat", "wb")
-con.obs <- file("yo_l96.dat", "wb")
+con.true <- file(xt_fname, "wb")
+con.obs <- file(yo_fname, "wb")
 for (k in 1:nt) {
   yo <- rnorm(ns, xt, sqrt(r))
   writeBin(yo, con.obs)

@@ -110,7 +110,7 @@ contains
       dx(:, j) = x(:, j) - xt
     end do
     e(1) = sqrt(sum((sum(dx, 2) / ne)**2) / ns)
-    e(2) = sum(sqrt(sum(dx**2, 1) / ns)**2) / ne
+    e(2) = sum(sqrt(sum(dx**2, 1) / ns)) / ne
     e(3) = e(1) / e(2)
     e(4) = sqrt(0.5_dp * (ns + 1.0_dp) / ns)
     e(5) = e(3) / e(4)
