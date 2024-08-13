@@ -6,7 +6,6 @@ import dist
 from eval import calc_error
 from config_l96 import ns, F, nt_spinup, nt, dt, r, \
         ne, fil, c_loc, infl, xt_fname, yo_fname, xf_fname
-import sys
 
 seed = 516
 rng = np.random.default_rng(seed)

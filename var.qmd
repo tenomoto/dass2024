@@ -267,7 +267,6 @@ $$ {#eq-adj-l96-tl}
 (@eq-adj-l96-tl)の右辺が表す$\mathbf{L}$の随伴$\mathbf{L}^\mathrm{T}$は、$\delta X$の添字が$i$となる行における係数を考えればよい。
 右辺第1、2、3項の$\delta X_{i-2},\,\delta X_{i-1},\,\delta X_{i+1}$なので、それぞれ$+2,\,+1,\,-1$加えれば$i$行目になる。
 さらに、左辺の変数（時間微分）と右辺の変数を入れ替え$\mathbf{L}^\mathrm{T}\dot{\mathbf{w}}^\mathrm{a}$が得られる。
-さらに、(@eq-adj-adjoint)の$\mathbf{I}$に対応して随伴変数を足す必要がある。
 
 L96の随伴モデルを書き下すと
 $$

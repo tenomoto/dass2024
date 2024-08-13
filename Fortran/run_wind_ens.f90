@@ -18,10 +18,8 @@ program run_wind_enkf
   namelist /wind/ ne, sf, uf, vf, yo, so, fil
 
   open(unit=un, file=nml, status="old")
-  read(unit=un, nml=random)
   read(unit=un, nml=wind)
   close(unit=un)
-  print random
   print wind
 
   r = so**2
