@@ -28,7 +28,7 @@ Pythonは一般的なプログラミング言語であり、ライブラリを�
 ネットワーク環境の制約を受けることにも注意が必要である。
 
 Google Colaboratoryは[Jupyter](https://jupyter.org/)のように、ウェブブラウザから使う。
-Jupyterはノートパソコンに構築することもできる（[@sec-jupyter]参照）。
+Jupyterはノートパソコンに構築することもできる（[Windows](#sec-jupyter-win)、[Mac](#sec-jupyter-mac)参照）。
 
 Python3をCPUで使うのが既定であるが、GPUを使ったり、Rを使うこともできる。
 次のようにgfortranを使うこともできる。

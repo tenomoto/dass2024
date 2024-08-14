@@ -8,6 +8,7 @@ website:
     left:
       - href: index.qmd
         text: "ホーム"
+      - setup.qmd
       - basics.qmd
       - model.qmd
       - var.qmd
