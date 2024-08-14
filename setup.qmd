@@ -56,7 +56,7 @@ Windowsは近年ターミナルやLinuxとの統合を強化している。黒�
 
 Macには「アプリケーション/ユーティリティ」に、LaunchPadでは「その他」にある。
 
-## WinGet
+## Windows
 
 Windowsでは、[winget](https://learn.microsoft.com/ja-jp/windows/package-manager/winget/)を用いると簡単に環境構築ができる。
 
@@ -96,7 +96,7 @@ pipでNumpyとmatplotlibをインストールする。
 > pip install numpy matplotlib
 ```
 
-### Jupyterのインストール {#sec-jupyter}
+### Jupyterのインストール {#sec-jupyter-win}
 
 jupyterをインストールする。
 
@@ -119,7 +119,7 @@ JupyterLabまたはJupyter Notebookを起動すると、既定のブラウザに
 > winget install Microsoft.VisualStudioCode
 ```
 
-### Fortranのインストール
+### gfortranとRのインストール
 
 Fortranでの計算結果の可視化にはRスクリプトを配布する。
 R以外で描画する場合はRは不要であるが、gfortranを使うにはRの開発環境であるRToolsをインストールする。
@@ -131,29 +131,107 @@ Numpyの[ソースからのインストール](https://numpy.org/doc/stable/buil
 > winget install RProject.Rtools
 ```
 
-パスを設定する。設定ファイルはホームのPowerShellフォルダの中に
+パスを設定する。設定ファイルはドキュメント（パソコンのアカウントがMicrosoftアカウントと紐付けられている場合は`OneDrive\ドキュメント`）の`PowerShell`フォルダの中の`Microsoft.PowerShell_profile.ps1`に保存される。`PowerShell`フォルダがないと保存できないことがあるので、あらかじめ作成しておく。Neovimで編集する場合は次のようにする。
+
+```powershell
+> nvim $profile
+```
+
+```powershell
+$env:PATH += "$env:ProgramFiles/R/R-4.4.1/bin/x64;"
+$env:PATH += "C:/rtools44/usr/bin;C:/rtools44/x86_w64-mingw32.static.posix/bin;"
+```
+
+`R`は1行目のパスに、make`は2行目の前者に、`gfortran`は後者にある。
+`R`はPowerShellでは、一つ前に投入したコマンドを呼び出すものであり、名前が衝突する。
+Rを起動したいときは、`R.exe`と打鍵する。
+`x86_w64-mingw32.static.posix`はプラットフォームに依存するので、ARM64では異なる。
+別タブを開いてgfortranがあることを確認する。
+```powershell
+> gfortran --version
+```
 
 ## Mac
 
 プログラミング習の範囲ではMacでも、公式サイトのPythonインストーラでよい。コンパイルが必要な外部ライブラリに依存する場合は、[MacPorts](https://www.macports.org/)を使ってインストールすることをお勧めする。Howbrewはネット上に多くの情報があるが、一貫した環境を提供するMacPortsを推す（Qiitaの[解説](https://qiita.com/tenomoto/items/66614f982de96641d662)）。MacPortsの既定のインストール先は`/opt/local`である。[Homebrew](https://docs.brew.sh/Installation)は、Intel Macでは`/usr/local`に、インストールされるので、自分でコンパイルしたものと混在することになる。Apple Siliconでは（ついに学んだのか）`/opt/homebrew`にインストールされる。IntelからApple Siliconに乗り換えたときに面倒が起きそうである。
 
+### MacPortsのインストール
+
 [Installing MacPorts](https://www.macports.org/install.php)に従って、次の手順でインストールする。
+
+OSを最新に更新した後、OSに応じたpkgインストーラ（アプリケーションをインストールする普通のインストーラ）を入手してMacPortsをインストールする。
+インストーラは`/opt/local/bin`を`.zshrc`に追加する。
 
 1. AppleのCommand Line Developer Toolsをインストールする。
 
 ```zsh
 % sudo xcode-select --install
-
 ```
 
+2. （オプション）Xcodeをインストール。
+
+```zsh
+% sudo xcodebuild -license
+```
+
+3. （オプション）X11ウインドウ環境を用いる場合は`xorg-server`ポートをインストールする。
+```zsh
+sudo port install xorg-server
+```
+
+インストールが済んだら、
+
+```zsh
+% sudo port -v selfupdate
+```
+
+を実行する。
+`port`コマンドについては、`man port`または[ドキュメント](https://guide.macports.org/#using)参照。
+
+### Pythonのインストール
+
 複数のバージョンを共存させるために、Pythonのライブラリ名はpy312-numpyのようにPythonのバージョンが付されている。
+`python312`は`/opt/local/Library/Frameworks/Python.framework/Versions/3.12`にインストールされる。
+
+```zsh
+% sudo port install python312
+```
+インストール後に表示されるメッセージにあるが、使用するバージョンを`select`サブコマンドで選択する。
 
 ```zsh
 % sudo port select python python312
-%
 ```
+
+次にNumpyとmatplotlibをインストールする。
+```zsh
+% sudo port install py312-numpy py312-matplotlib
+```
+`python312`を明示的にインストールしなてくも、Numpyやmatpotlibが依存するものとしてインストールされる。
+
+### Jupyterのインストール {#sec-jupyter-mac}
+
+JupyterもMacPortsで簡単にインストールできる。
 
 ```zsh
-% sudo port -d install python312 py312-numpy py312-matplotlib
+$ sudo port install jupyter
 ```
 
+### gfortranとRのインストール
+
+gfortranはgccの一部として配布されている。
+
+```
+sudo port install gcc14
+```
+
+gccも複数のバージョンを共存させるため、`gfortran-mp-14`のようにバージョン番号をつけた実行ファイル名になっている。
+
+```zsh
+% port select gcc mp-gcc14
+```
+を実行するとgcc14を既定として`gfortran-mp-14`を指すエイリアス`gfortran`が`/opt/local/bin`に作成される。
+
+描画に使う場合には、Rもインストールする。
+```zsh
+% sudo port install R
+```

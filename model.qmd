@@ -48,7 +48,7 @@ $$ {#eq-model-dusdu}
 
 ```{r}
 #| code-fold: true
-#| file: "R/run_wind_eakf.R"
+#| file: "R/run_wind_ens.R"
 ```
 ::: {.callout-caution title="注意"}
 非線型の場合は、平均に観測演算子を適用したものと観測演算子を適用したアンサンブルの平均は異なる。
