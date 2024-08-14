@@ -14,8 +14,7 @@ program run_wind_enkf
   integer :: seed, ne
   real(dp) :: sf, uf, vf, yo, so, r
   character(len=4) :: fil
-  namelist /random/ seed
-  namelist /wind/ ne, sf, uf, vf, yo, so, fil
+  namelist /wind/ seed, ne, sf, uf, vf, yo, so, fil
 
   open(unit=un, file=nml, status="old")
   read(unit=un, nml=wind)
