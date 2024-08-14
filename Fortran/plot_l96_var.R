@@ -11,7 +11,7 @@ png(pngname, w, h)
 plot(seq(1, nw * nc, by=nw), l2, type="l", lwd=3,
      main=title, xlab="time", ylab="L2", ylim=c(0, 3),
      cex.lab=2, cex.axis=2, cex.main=3)
-abline(h=1, lty=2, lwd=2)
+abline(h=sqrt(r), lty=2, lwd=2)
 abline(h=mean(l2), lty=3, lwd=2)
 legend("topleft", cex=2,
        legend=c("analysis",

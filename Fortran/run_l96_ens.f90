@@ -86,8 +86,9 @@ program run_l96_ens
 
   open(unit=un, file="confplot_l96_ens.R", access="stream", &
     form="formatted", status="replace", action="write")
-  write(un, *) "fil <-", "'", fil, "'"
   write(un, *) "nt <-", nt
+  write(un, *) "r <-", r
+  write(un, *) "fil <-", "'", fil, "'"
   write(un, *) "ne <-", ne
   write(un, *) "infl <-", infl
   write(un, *) "c.loc <-", c_loc

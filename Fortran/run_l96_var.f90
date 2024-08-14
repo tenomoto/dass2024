@@ -82,6 +82,7 @@ program run_l96_var
 
   open(unit=un, file="confplot_l96_var.R", access="stream", &
     form="formatted", status="replace", action="write")
+  write(un, *) "r <-", r
   write(un, *) "nw <-", nw
   write(un, *) "nc <-", nc
   write(un, *) "a <-", a
