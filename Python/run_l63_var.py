@@ -15,7 +15,7 @@ xt[:, 0] = xt0
 yo = np.zeros([ns, nobs])
 m = 0
 for k in range(1,nt):
-    xt[:, k] = ode.fom(l63.l63, xt[:, k-1], 1, dt, p, r, b)
+    xt[:, k] = step.fom(l63.l63, xt[:, k-1], 1, dt, p, r, b)
     if (k+1) % obs_int == 0:
         yo[:, m] = rng.normal(xt[:, k], np.sqrt(obs_r), ns)
         print(xt[:, k])
@@ -27,12 +27,12 @@ sys.exit()
 #for i in range(ni):
 #    m = 0
 #    for j in range(1, nt):
-#        xb[:, j] = ode.fom(l63.l63, xb[:, j-1], 1, dt, p, r, b)    
+#        xb[:, j] = step.fom(l63.l63, xb[:, j-1], 1, dt, p, r, b)    
 #    d = xb[:, np.arange(nobs) * obs_int] - yo
 #    ad = np.zeros(ns)
 #    m = nobs - 1
 #    for j in range(nt-1, -1, -1):
-#        ad = ode.adm(l63.l63, l63.ad, xb[:, j], ad, 1, dt, p, r, b)
+#        ad = step.adm(l63.l63, l63.ad, xb[:, j], ad, 1, dt, p, r, b)
 #    if (j+1) % obs_int == 0:
 #        ad = ad + d[:, m] / obs_r
 #        m -= 1

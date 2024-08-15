@@ -1,5 +1,5 @@
 source("l96.R")
-source("ode.R")
+source("step.R")
 source("enkf.R")
 source("eakf.R")
 source("dist.R")
@@ -41,7 +41,7 @@ for (k in 1:nt) {
   st[k] <- mean(apply(xa, 1, sd))
   if (k < nt) {
     for (i in 1:ne) {
-      xf[,i] <- ode.fom(l96, xa[,i], 1, dt, F)   
+      xf[,i] <- step.fom(l96, xa[,i], 1, dt, F)   
     }
   }
 }

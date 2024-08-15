@@ -1,5 +1,5 @@
 source("l96.R")
-source("ode.R")
+source("step.R")
 source("config_l96.R")
 
 nc <- nt %/% nw
@@ -30,12 +30,12 @@ for (k in 1:nc){
   xb[, 1] <- x0
   for (i in 1:ni) {
     for (j in 2:nw){
-      xb[, j] <- ode.fom(l96, xb[, j-1], 1, dt, F)
+      xb[, j] <- step.fom(l96, xb[, j-1], 1, dt, F)
     }
     d = xb - yo
     ad <- rep(0, ns)
     for (j in nw:1){
-      ad <- ode.adm(l96, l96.ad, xb[, j], ad, 1, dt, F) + d[, j] / r
+      ad <- step.adm(l96, l96.ad, xb[, j], ad, 1, dt, F) + d[, j] / r
     }
     xb[, 1] <- xb[, 1] - a * ad
     cost <- calc.cost(xb[, 1] - x0, b, d, r)
@@ -55,7 +55,7 @@ for (k in 1:nc){
     }
     cost.old <- cost
   }
-  x0 <- ode.fom(l96, xb[, 1], nw + 1, dt, F)
+  x0 <- step.fom(l96, xb[, 1], nw + 1, dt, F)
 }
 close(con.true)
 close(con.obs)

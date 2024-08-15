@@ -1,4 +1,4 @@
-source("ode.R")
+source("step.R")
 
 
 l96 <- function(t, x, F=8) {
@@ -27,16 +27,16 @@ l96.test <- function(a=1e-5) {
   seed <- 514
   set.seed(seed)
   
-  x0 <- ode.fom(l96, rnorm(ns), nstep.spinup, dt, F)
-  x <- ode.fom(l96, x0, 1, dt, F)
+  x0 <- step.fom(l96, rnorm(ns), nstep.spinup, dt, F)
+  x <- step.fom(l96, x0, 1, dt, F)
   
   dx0 <- a * rnorm(ns)
-  x1 <- ode.fom(l96, x0 + dx0, 1, dt, F)
-  dx <- ode.tlm(l96, l96.tl, x0, dx0, 1, dt, F)
+  x1 <- step.fom(l96, x0 + dx0, 1, dt, F)
+  dx <- step.tlm(l96, l96.tl, x0, dx0, 1, dt, F)
   e <- sqrt(sum((x1 - x - dx)^2))
   cat("TLM:", "a=", a, "l2=", e, "\n")
   
-  xa <- ode.adm(l96, l96.ad, x0, dx, 1, dt, F)
+  xa <- step.adm(l96, l96.ad, x0, dx, 1, dt, F)
   tdxdx <- t(dx) %*% dx
   dx0xa <- t(dx0) %*% xa
   cat("ADJ: dt^t dx - t(dx0) xa =", tdxdx, "-", dx0xa, "=", tdxdx - dx0xa, "\n")

@@ -1,14 +1,14 @@
 source("l96.R")
-source("ode.R")
+source("step.R")
 source("config_l96.R")
 
 seed <- 514
 set.seed(seed)
 
-xt <- ode.fom(l96, rnorm(ns), nt.spinup, dt, F)
+xt <- step.fom(l96, rnorm(ns), nt.spinup, dt, F)
 con.ens <- file(xf_fname, "wb")
 for (j in 1:ne) {
-  xf <- ode.fom(l96, rnorm(ns), nt.spinup, dt , F)
+  xf <- step.fom(l96, rnorm(ns), nt.spinup, dt , F)
   writeBin(xf, con.ens)
 }
 close(con.ens)
@@ -20,7 +20,7 @@ for (k in 1:nt) {
   writeBin(yo, con.obs)
   writeBin(xt, con.true)
   if (k < nt) {
-    xt <- ode.fom(l96, xt, 1, dt, F)
+    xt <- step.fom(l96, xt, 1, dt, F)
   }
 }
 close(con.true)

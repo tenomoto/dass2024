@@ -17,7 +17,7 @@ xt[:, 0] = xt0
 yo = np.zeros([ns, nobs])
 m = 0
 for k in range(1,nt):
-    xt[:, k] = ode.fom(l63, xt[:, k-1], 1, dt, p, r, b)
+    xt[:, k] = step.fom(l63, xt[:, k-1], 1, dt, p, r, b)
     if (k+1) % obs_int == 0:
         yo[:, m] = rng.normal(xt[:, k], np.sqrt(obs_r), ns)
         m += 1
@@ -42,7 +42,7 @@ for k in range(nt):
     xm[:, k] = xf.mean(axis=1)
     if k < nt:
         for j in range(ne):
-            xf[:, j] = ode.fom(l63, xf[:, j], 1, dt, p, r, b)
+            xf[:, j] = step.fom(l63, xf[:, j], 1, dt, p, r, b)
 
 tab = ["tab:blue", "tab:orange", "tab:red"]
 

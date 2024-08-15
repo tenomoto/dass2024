@@ -1,5 +1,5 @@
 source("l63.R")
-source("ode.R")
+source("step.R")
 source("enkf.R")
 source("eakf.R")
 source("config_l63.R")
@@ -12,7 +12,7 @@ xt[, 1] <- xt0
 yo <- matrix(rep(0, ns * nobs), nrow=ns)
 m = 1
 for (k in 2:nt) {
-  xt[, k] <- ode.fom(l63, xt[, k-1], 1, dt, p, r, b)
+  xt[, k] <- step.fom(l63, xt[, k-1], 1, dt, p, r, b)
   if (k %% obs.int == 0) {
     yo[, m] <- rnorm(ns, xt[, k], sqrt(obs.r))
     m <- m + 1
@@ -21,7 +21,7 @@ for (k in 2:nt) {
 
 xf <- matrix(rep(0, ns * ne), nrow=ns)
 for (j in 1: ne) {
-  xf[, j] <- rnorm(ns, xb0, sqrt(model.q))
+  xf[, j] <- rnorm(ns, xb0, sqrt(mstep..q))
 }
 m = 1
 xm <- matrix(rep(0, ns*nt), nrow=ns)
@@ -43,7 +43,7 @@ for (k in 1:nt) {
   xm[, k] <- apply(xf, 1, mean)
   if (k < nt){
     for (j in 1:ne) {
-      xf[, j] <- ode.fom(l63, xf[, j], 1, dt, p, r, b)
+      xf[, j] <- step.fom(l63, xf[, j], 1, dt, p, r, b)
     }    
   }
 }

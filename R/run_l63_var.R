@@ -1,5 +1,5 @@
 source("l63.R")
-source("ode.R")
+source("step.R")
 source("config_l63.R")
 
 seed <- 514
@@ -10,7 +10,7 @@ xt[, 1] <- xt0
 yo <- matrix(rep(0, ns * nobs), nrow=ns)
 m <- 1
 for (k in 2:nt) {
-  xt[, k] <- ode.fom(l63, xt[, k-1], 1, dt, p, r, b)
+  xt[, k] <- step.fom(l63, xt[, k-1], 1, dt, p, r, b)
   if (k %% obs.int == 0) {
     yo[, m] <- rnorm(ns, xt[, k], sqrt(obs.r))
     cat(k,xt[,k],"\n")
@@ -24,13 +24,13 @@ xb[, 1] <- xb0
 for (i in 1:ni) {
   m <- 1
   for (j in 2:nt) {
-    xb[, j] <- ode.fom(l63, xb[, j-1], 1, dt, p, r, b)    
+    xb[, j] <- step.fom(l63, xb[, j-1], 1, dt, p, r, b)    
   }
   d <- xb[, (1:nobs) * obs.int] - yo
   ad <- rep(0, ns)
   m = nobs
   for (j in nt:1){
-    ad <- ode.adm(l63, l63.ad, xb[, j], ad, 1, dt, p, r, b)
+    ad <- step.adm(l63, l63.ad, xb[, j], ad, 1, dt, p, r, b)
     if (j %% obs.int == 0) {
       ad <- ad + d[, m] / obs.r
       m <- m - 1

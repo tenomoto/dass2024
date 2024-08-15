@@ -1,4 +1,4 @@
-source("ode.R")
+source("step.R")
 
 l63 <- function(t, w, p, r, b){
   c(
@@ -31,15 +31,15 @@ l63.test <- function(a=1e-5) {
   dt <- 0.01
   
   x0 <- c(1, 1, 1)
-  x <- ode.fom(l63, x0, 1, dt, p, r, b)
+  x <- step.fom(l63, x0, 1, dt, p, r, b)
   
   dx0 <- a * x0
-  x1 <- ode.fom(l63, x0 + dx0, 1, dt, p, r, b)
-  dx <- ode.tlm(l63, l63.tl, x0, dx0, 1, dt, p, r, b)
+  x1 <- step.fom(l63, x0 + dx0, 1, dt, p, r, b)
+  dx <- step.tlm(l63, l63.tl, x0, dx0, 1, dt, p, r, b)
   e <- sqrt(sum((x1 - x - dx)^2))
   cat("TLM:", "a=", a, "l2=", e, "\n")
   
-  xa <- ode.adm(l63, l63.ad, x0, dx, 1, dt, p, r, b)
+  xa <- step.adm(l63, l63.ad, x0, dx, 1, dt, p, r, b)
   tdxdx <- t(dx) %*% dx
   dx0xa <- t(dx0) %*% xa
   cat("ADJ: dt^t dx - t(dx0) xa =", tdxdx, "-", dx0xa, "=", tdxdx - dx0xa, "\n")

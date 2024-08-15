@@ -29,15 +29,15 @@ def test(a=1e-5):
     dt = 0.01
   
     x0 = np.ones(3)
-    x = ode.fom(l63, x0, 1, dt, p, r, b)
+    x = step.fom(l63, x0, 1, dt, p, r, b)
   
     dx0 = a * x0
-    x1 = ode.fom(l63, x0 + dx0, 1, dt, p, r, b)
-    dx = ode.tlm(l63, tl, x0, dx0, 1, dt, p, r, b)
+    x1 = step.fom(l63, x0 + dx0, 1, dt, p, r, b)
+    dx = step.tlm(l63, tl, x0, dx0, 1, dt, p, r, b)
     e = np.sqrt(((x1 - x - dx)**2).sum())
     print(f"TLM: a={a} l2={e}")
   
-    xa = ode.adm(l63, ad, x0, dx, 1, dt, p, r, b)
+    xa = step.adm(l63, ad, x0, dx, 1, dt, p, r, b)
     tdxdx = np.dot(dx, dx)
     dx0xa = np.dot(dx0, xa)
     print(f"ADJ: dt^t dx - t(dx0) xa ={tdxdx}-{dx0xa}={tdxdx - dx0xa}")
