@@ -54,8 +54,6 @@ program run_l96_var
       do j = nw, 1, -1
         ad = l96_adm(xb(:, j), ad, 1, dt, F) + d(:, j) / r
       end do
-      print *, ad
-      stop
       xb(:, 1) = xb(:, 1) - a * ad
       cost = calc_cost(xb(:, 1) - x0, b, d, r)
       if (i==1) cost_old = cost
