@@ -15,10 +15,9 @@ g_break = 1e-8
 
 # ens
 ne = 20
-#fil = "eakf"
-fil = "enkf"
-c_loc = 2.0
-infl = 1.03
+fil = "eakf"
+c_loc = 4.0
+infl = 1.01
 
 # io
 xt_fname = "xt_l96.dat"

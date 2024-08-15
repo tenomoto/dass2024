@@ -1,4 +1,4 @@
-source("rk4.R")
+source("ode.R")
 
 
 l96 <- function(t, x, F=8) {
@@ -19,34 +19,7 @@ l96.ad <- function(t, x, dxa, ...){
       x[c(n-1, n, 1:(n-2))] * dxa[c(n, 1:(n-1))] - dxa
 }
 
-l96.fom <- function(x, nstep, dt, F) {
-  t <- 0
-  for (i in 1:nstep) {
-    x <- rk4(l96, t, x, dt, F)
-    t <- t + dt
-  }
-  x
-}
-
-l96.tlm <- function(x, dx, nstep, dt, F) {
-  t <- 0
-  for (i in 1:nstep) {
-    dx <- rk4.tl(l96, l96.tl, t, x, dx, dt, F)
-    t <- t + dt
-  }
-  dx
-}
-
-l96.adm <- function(x, xa, nstep, dt, F) {
-  t <- nstep
-  for (i in nstep:1){
-    xa <- rk4.ad(l96, l96.ad, t, x, xa, dt, F)
-    t <- t - dt
-  }
-  xa
-}
-
-test.l96 <- function(a=1e-5) {
+l96.test <- function(a=1e-5) {
   ns <- 40
   F <- 8
   dt <- 0.05
@@ -54,18 +27,16 @@ test.l96 <- function(a=1e-5) {
   seed <- 514
   set.seed(seed)
   
-  x0 <- l96.fom(rnorm(ns), nstep.spinup, dt, F)
-#  x0 <- rep(1, ns)
-  x <- l96.fom(x0, 1, dt, F)
+  x0 <- ode.fom(l96, rnorm(ns), nstep.spinup, dt, F)
+  x <- ode.fom(l96, x0, 1, dt, F)
   
   dx0 <- a * rnorm(ns)
-#  dx0 <- rep(a, ns)
-  x1 <- l96.fom(x0 + dx0, 1, dt, F)
-  dx <- l96.tlm(x0, dx0, 1, dt, F)
+  x1 <- ode.fom(l96, x0 + dx0, 1, dt, F)
+  dx <- ode.tlm(l96, l96.tl, x0, dx0, 1, dt, F)
   e <- sqrt(sum((x1 - x - dx)^2))
   cat("TLM:", "a=", a, "l2=", e, "\n")
   
-  xa <- l96.adm(x0, dx, 1, dt, F)
+  xa <- ode.adm(l96, l96.ad, x0, dx, 1, dt, F)
   tdxdx <- t(dx) %*% dx
   dx0xa <- t(dx0) %*% xa
   cat("ADJ: dt^t dx - t(dx0) xa =", tdxdx, "-", dx0xa, "=", tdxdx - dx0xa, "\n")

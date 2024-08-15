@@ -1,4 +1,5 @@
 source("l96.R")
+source("ode.R")
 source("config_l96.R")
 
 nc <- nt %/% nw
@@ -16,9 +17,7 @@ con <- file(xf_fname, "rb")
 x0 <- readBin(con, "numeric", ns)
 close(con)
 
-yo <- matrix(rep(0, ns*nw), ncol=nw)
 xb <- matrix(rep(0, ns*nw), ncol=nw)
-d <- matrix(rep(0, ns*nw), ncol=nw)
 l2 <- rep(0, nc)
 
 for (k in 1:nc){
@@ -31,12 +30,12 @@ for (k in 1:nc){
   xb[, 1] <- x0
   for (i in 1:ni) {
     for (j in 2:nw){
-      xb[, j] <- l96.fom(xb[, j-1], 1, dt, F)
+      xb[, j] <- ode.fom(l96, xb[, j-1], 1, dt, F)
     }
     d = xb - yo
     ad <- rep(0, ns)
     for (j in nw:1){
-      ad <- l96.adm(xb[, j], ad, 1, dt, F) + d[, j] / r
+      ad <- ode.adm(l96, l96.ad, xb[, j], ad, 1, dt, F) + d[, j] / r
     }
     xb[, 1] <- xb[, 1] - a * ad
     cost <- calc.cost(xb[, 1] - x0, b, d, r)
@@ -56,7 +55,7 @@ for (k in 1:nc){
     }
     cost.old <- cost
   }
-  x0 <- l96.fom(xb[, 1], nw + 1, dt, F)
+  x0 <- ode.fom(l96, xb[, 1], nw + 1, dt, F)
 }
 close(con.true)
 close(con.obs)

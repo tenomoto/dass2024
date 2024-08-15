@@ -1,4 +1,5 @@
 source("l96.R")
+source("ode.R")
 source("enkf.R")
 source("eakf.R")
 source("dist.R")
@@ -40,7 +41,7 @@ for (k in 1:nt) {
   st[k] <- mean(apply(xa, 1, sd))
   if (k < nt) {
     for (i in 1:ne) {
-      xf[,i] <- l96.fom(xa[,i], 1, dt, F)   
+      xf[,i] <- ode.fom(l96, xa[,i], 1, dt, F)   
     }
   }
 }

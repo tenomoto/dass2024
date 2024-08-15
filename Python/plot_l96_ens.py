@@ -8,7 +8,7 @@ with open(f"l96_{fil}.dat", "rb") as f:
     e2 = np.fromfile(f, count=nt)
     st = np.fromfile(f, count=nt)
 
-plt.rcParams["font.size"] = 18
+plt.rcParams["font.size"] = 14
 
 title = f"{fil} ne={ne} infl={infl} loc={c_loc}"
 fig, ax = plt.subplots()

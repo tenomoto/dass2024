@@ -20,5 +20,5 @@ for k in range(nt):
     yo.tofile(f_obs)
     xt.tofile(f_true)
     if k < nt:
-        xt = l96.fom(rng.normal(0, 1, ns), 1, dt, F)
+        xt = l96.fom(xt, 1, dt, F)
 

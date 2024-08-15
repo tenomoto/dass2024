@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from config_l96 import nt, r, nw, a
 
-plt.rcParams["font.size"] = 18
+plt.rcParams["font.size"] = 14
 
 l2 = np.fromfile("l96_var.dat")
 

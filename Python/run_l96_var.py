@@ -2,6 +2,7 @@ import numpy as np
 import l96
 from config_l96 import ns, F, dt, r, nt, \
         b, nw, ni, a, g_break, xt_fname, yo_fname, xf_fname
+import sys
 
 nc = nt // nw
 def calc_cost(dx, b, dy, r):

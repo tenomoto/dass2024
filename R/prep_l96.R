@@ -1,13 +1,14 @@
 source("l96.R")
+source("ode.R")
 source("config_l96.R")
 
 seed <- 514
 set.seed(seed)
 
-xt <- l96.fom(rnorm(ns), nt.spinup, dt, F)
+xt <- ode.fom(l96, rnorm(ns), nt.spinup, dt, F)
 con.ens <- file(xf_fname, "wb")
-for (i in 1:ne) {
-  xf <- l96.fom(rnorm(ns), nt.spinup, dt , F)
+for (j in 1:ne) {
+  xf <- ode.fom(l96, rnorm(ns), nt.spinup, dt , F)
   writeBin(xf, con.ens)
 }
 close(con.ens)
@@ -19,7 +20,7 @@ for (k in 1:nt) {
   writeBin(yo, con.obs)
   writeBin(xt, con.true)
   if (k < nt) {
-    xt <- l96.fom(xt, 1, dt, F)
+    xt <- ode.fom(l96, xt, 1, dt, F)
   }
 }
 close(con.true)
