@@ -102,13 +102,13 @@ jupyterをインストールする。
 
 ```powershell
 > pip install jupyter
-``
+```
 
 JupyterLabまたはJupyter Notebookを起動すると、既定のブラウザに表示される。
 
 ```powershell
 > jupyter notebook
-``
+```
 
 ### エディタのインストール
 

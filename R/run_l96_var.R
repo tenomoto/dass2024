@@ -5,8 +5,8 @@ source("config_l96.R")
 nc <- nt %/% nw
 calc.cost <- function(dx, b, dy, r) {
   cost <- 0.5 * t(dx) %*% dx / b
-  for (i in 1:ncol(dy)) {
-    cost <- cost + 0.5 * t(dy[, i]) %*% dy[, i] / r
+  for (j in 1:ncol(dy)) {
+    cost <- cost + 0.5 * t(dy[, j]) %*% dy[, j] / r
   }
   as.numeric(cost)
 }
