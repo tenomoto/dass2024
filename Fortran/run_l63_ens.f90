@@ -50,7 +50,6 @@ program run_l63_ens
   do j = 1, ne
     zf(1:ns, j) = xb0 + sqrt(model_q) * rnorm(ns)
   end do
-  print *, zf(:, 5)
 
   m = 1
   do k = 1, nt
@@ -58,7 +57,6 @@ program run_l63_ens
       dz = 0.0d0
       do i = 1, ns
         zf(ns+1, :) = zf(i, :)
-        print *, zf(:, 5)
         if (fil == "enkf") then
           yo_p = rnorm(ns, yo(i, m), obs_r(i))
           yo_p = yo_p - sum(yo_p) / ne + yo(i, m)
