@@ -4,8 +4,9 @@ import numpy as np
 ns = 3
 xt0 = np.array([1, 3, 5])
 xb0 = np.array([1.1, 3.3, 5.5])
+#xb0 = np.array([1, -1, 1])
 p = 10
-r = 32
+r = 48
 b = 8 / 3
 dt = 0.01
 nt = 200

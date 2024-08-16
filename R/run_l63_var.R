@@ -62,7 +62,7 @@ xt <- xt + off
 xb <- xb + off
 yo <- yo + off
 plot(1, type = "n", xlab="time", ylab="state", main=title,
-     xlim=c(min(t), max(t)), ylim=c(-10, 120))
+     xlim=c(min(t), max(t)), ylim=c(-20, 150))
 for (i in 1:ns) {
   lines(t, xt[i,], lwd=2, lty=2, col=tab10.new[i])
   lines(t, xb[i,], lwd=2, col=tab10.new[i])
@@ -70,4 +70,4 @@ for (i in 1:ns) {
   abline(h=off[i], lty=3, col=tab10.new[i])
 }
 legend("topright", legend=c("model", "true", "obs"), 
-       lty=c(1, 2, NA), pch=c(NA, NA, 4), ncol=ns)
+       lty=c(1, 2, NA), pch=c(NA, NA, 4), ncol=3)

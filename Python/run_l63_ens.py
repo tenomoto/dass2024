@@ -6,7 +6,6 @@ import enkf
 import eakf
 from config_l63 import xt0, xb0, ns, p, r, b, dt, \
         nt, model_q, obs_int, obs_r, nobs, ne, fil
-import sys
 
 
 seed = 514
@@ -64,5 +63,5 @@ ax.set_title(title)
 ax.set_xlabel("time")
 ax.set_ylabel("state")
 ax.set_xlim([t[0], t[-1]])
-ax.set_ylim([-15, 125])
+ax.set_ylim([-20, 150])
 plt.show()

@@ -1,7 +1,8 @@
 program prep_l96
   use, intrinsic :: iso_fortran_env, only: dp => real64
   use random_module, only: random_set_seed, rnorm => random_normal
-  use l96_module, only: l96_fom
+  use l96_module, only: l96_nl
+  use step_module, only: step_fom
   implicit none
 
   integer, parameter :: &
@@ -9,6 +10,7 @@ program prep_l96
   integer :: ns, nt_spinup, nt, ne, i
   character(len=256) :: xt_fname, yo_fname, xf_fname
   real(dp) :: dt, F, r, c_loc, infl
+  real(dp) :: opts(1)
   real(dp), allocatable :: xt(:), xf(:), yo(:)
   character(len=4) :: fil
 
@@ -29,15 +31,16 @@ program prep_l96
   allocate(xt(ns), xf(ns), yo(ns))
   call random_set_seed(seed)
   
+  opts(1) = F
   open(unit=un_xt, file=xt_fname, access="stream", &
     form="unformatted", status="replace", action="write")
   open(unit=un_yo, file=yo_fname, access="stream", &
     form="unformatted", status="replace", action="write")
   open(unit=un_xf, file=xf_fname, access="stream", &
     form="unformatted", status="replace", action="write")
-  xt = l96_fom(rnorm(ns), nt_spinup, dt, F)
+  xt = step_fom(l96_nl, rnorm(ns), nt_spinup, dt, opts)
   do i = 1, ne
-    xf = l96_fom(rnorm(ns), nt_spinup, dt, F)
+    xf = step_fom(l96_nl, rnorm(ns), nt_spinup, dt, opts)
     write(unit=un_xf) xf
   end do
   do i = 1, nt
@@ -45,7 +48,7 @@ program prep_l96
     write(unit=un_xt) xt
     write(unit=un_yo) yo
     if (i < nt) then
-      xt = l96_fom(xt, 1, dt, F)
+      xt = step_fom(l96_nl, xt, 1, dt, opts)
     end if
   end do
   deallocate(xt, xf, yo)

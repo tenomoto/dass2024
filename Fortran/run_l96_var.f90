@@ -1,6 +1,7 @@
 program run_l96_var
   use, intrinsic :: iso_fortran_env, only: dp => real64
-  use l96_module, only: l96_fom, l96_adm
+  use step_module, only: step_fom, step_adm
+  use l96_module, only: l96_nl, l96_ad
   implicit none
 
   integer, parameter :: &
@@ -9,6 +10,7 @@ program run_l96_var
     nml = "l96.nml", fname = "l96_var.dat"
   integer :: ns, nt_spinup, nt, nw, nc, ni, i, j, k
   real(dp) :: dt, F, b, r, a, gb, cost, cost_old, gnorm
+  real(dp) :: opts(1)
   real(dp), allocatable ::  xt(:), xt0(:), x0(:), &
     ad(:), yo(:,:), xb(:,:), d(:,:), l2(:)
   character(len=256) :: xt_fname, yo_fname, xf_fname
@@ -27,6 +29,7 @@ program run_l96_var
   close(unit=un)
   nc = nt / nw
   print *, "nc=", nc
+  opts(1) = F
 
   allocate(xt(ns), xt0(ns), x0(ns), &
     ad(ns), yo(ns, nw), xb(ns, nw), d(ns, nw), l2(nc))
@@ -47,12 +50,12 @@ program run_l96_var
     xb(:, 1) = x0
     do i = 1, ni
       do j = 2, nw
-        xb(:, j) = l96_fom(xb(:, j-1), 1, dt, F)
+        xb(:, j) = step_fom(l96_nl, xb(:, j-1), 1, dt, opts)
       end do
       d = xb - yo
       ad = 0.0_dp
       do j = nw, 1, -1
-        ad = l96_adm(xb(:, j), ad, 1, dt, F) + d(:, j) / r
+        ad = step_adm(l96_nl, l96_ad, xb(:, j), ad, 1, dt, opts) + d(:, j) / r
       end do
       xb(:, 1) = xb(:, 1) - a * ad
       cost = calc_cost(xb(:, 1) - x0, b, d, r)
@@ -69,7 +72,7 @@ program run_l96_var
       end if
       cost_old = cost  
     end do
-    x0 = l96_fom(xb(:, 1), nw + 1, dt, F)
+    x0 = step_fom(l96_nl, xb(:, 1), nw + 1, dt, opts)
   end do
   close(un_xt)
   close(un_yo)

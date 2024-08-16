@@ -1,7 +1,8 @@
 program run_l96_ens
   use, intrinsic :: iso_fortran_env, only: dp => real64
   use random_module, only: rnorm => random_normal
-  use l96_module, only: l96_fom
+  use step_module, only: step_fom
+  use l96_module, only: l96_nl
   use enkf_module, only: enkf_analysis
   use eakf_module, only: eakf_analysis
   implicit none
@@ -12,6 +13,7 @@ program run_l96_ens
   integer :: ns, ne, nt_spinup, nt, i, j, k
   character(len=256) :: xt_fname, yo_fname, xf_fname, fname
   real(dp) :: dt, F, r, e(5), d, c_loc, infl
+  real(dp) :: opts(1)
   real(dp), allocatable :: e1(:), e2(:), st(:), &
     xt(:), yo(:), yo_p(:), zf(:, :), dz(:, :), loc_inf(:)
   character(len=4) :: fil
@@ -28,6 +30,7 @@ program run_l96_ens
   read(unit=un, nml=io)
   print io
   close(unit=un)
+  opts(1) = F
 
   allocate(xt(ns), yo(ns), zf(ns + 1, ne), dz(ns + 1, ne), &
     e1(nt), e2(nt), st(nt), loc_inf(ns + 1))
@@ -68,7 +71,7 @@ program run_l96_ens
     st(k) = calc_sd(zf(1:ns, :))
     if (k < nt) then
       do j = 1, ne
-        zf(1:ns, j) = l96_fom(zf(1:ns, j), 1, dt, F)
+        zf(1:ns, j) = step_fom(l96_nl, zf(1:ns, j), 1, dt, opts)
       end do
     end if
   end do

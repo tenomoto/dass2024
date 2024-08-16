@@ -1,5 +1,5 @@
 source("l96.R")
-source("ode.R")
+source("rk4.R")
 
 nj <- 40
 nstep <- 1001
