@@ -5,6 +5,14 @@ source("config_l63.R")
 seed <- 514
 set.seed(seed)
 
+calc.cost <- function(dx, b, dy, r) {
+  cost <- 0.5 * t(dx) %*% dx / b
+  for (j in 1:ncol(dy)) {
+    cost <- cost + 0.5 * t(dy[, j]) %*% (dy[, j] / r)
+  }
+  as.numeric(cost)
+}
+options(digits = 5)
 xt <- matrix(rep(0, ns * nt), nrow=ns)
 xt[, 1] <- xt0
 yo <- matrix(rep(0, ns * nobs), nrow=ns)
@@ -13,14 +21,15 @@ for (k in 2:nt) {
   xt[, k] <- step.fom(l63, xt[, k-1], 1, dt, p, r, b)
   if (k %% obs.int == 0) {
     yo[, m] <- rnorm(ns, xt[, k], sqrt(obs.r))
-    cat(k,xt[,k],"\n")
     m <- m + 1
   }
 }
 
-xb <- matrix(rep(0, ns * nt), nrow=ns)
 l2 <- rep(0, ni)
+cost <- rep(0, ni)
+xb <- matrix(rep(0, ns * nt), nrow=ns)
 xb[, 1] <- xb0
+
 for (i in 1:ni) {
   m <- 1
   for (j in 2:nt) {
@@ -37,12 +46,15 @@ for (i in 1:ni) {
     }
   }
   xb[, 1] <- xb[, 1] - a * ad
+  l2[i] <- sqrt(mean((xb[, 1] - xt0)^2))
+  cost[i] <- calc.cost(xb[,1] - xb0, bgd.b, d, obs.r)
+  cat(i, l2[i], cost[i], "\n")
 }
 
 tab10.new <- c('#5778a4', '#e49444', '#d1615d', '#85b6b2', '#6a9f58',
                '#e7ca60', '#a87c9f', '#f1a2a9', '#967662', '#b8b0ac')
 
-title <- paste("L63 Var ni=", ni)
+title <- paste("L63 Var a=", a, " ni=", ni, " L2=", format(l2[ni], digits=3))
 off <- c(0, 40, 60)
 t <- (1:nt) * dt
 to <- ((1:nobs) * obs.int) * dt

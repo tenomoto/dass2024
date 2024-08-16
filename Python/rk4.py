@@ -22,7 +22,7 @@ def ad(f, fa, t, y, ya, h, *args):
     y3 = y + 0.5 * h * k2
     k3 = f(t + 0.5 * h, y3, *args)
     y4 = y + h * k3
-    
+
     k1a = h * ya / 6
     k2a = h * ya / 3
     k3a = k2a

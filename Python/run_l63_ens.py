@@ -1,22 +1,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from l63 import l63
-import ode
+import step
 import enkf
 import eakf
 from config_l63 import xt0, xb0, ns, p, r, b, dt, \
         nt, model_q, obs_int, obs_r, nobs, ne, fil
 import sys
 
-#seed = 514
-#rng = np.random.default_rng(seed)
-rng = np.random.default_rng()
+
+seed = 514
+rng = np.random.default_rng(seed)
 
 xt = np.zeros([ns, nt])
 xt[:, 0] = xt0
 yo = np.zeros([ns, nobs])
 m = 0
-for k in range(1,nt):
+for k in range(1, nt):
     xt[:, k] = step.fom(l63, xt[:, k-1], 1, dt, p, r, b)
     if (k+1) % obs_int == 0:
         yo[:, m] = rng.normal(xt[:, k], np.sqrt(obs_r), ns)
@@ -64,5 +64,5 @@ ax.set_title(title)
 ax.set_xlabel("time")
 ax.set_ylabel("state")
 ax.set_xlim([t[0], t[-1]])
-ax.set_ylim([-10, 120])
+ax.set_ylim([-15, 125])
 plt.show()

@@ -19,9 +19,10 @@ for (k in 2:nt) {
   }
 }
 
+l2 <- rep(0, ni)
 xf <- matrix(rep(0, ns * ne), nrow=ns)
 for (j in 1: ne) {
-  xf[, j] <- rnorm(ns, xb0, sqrt(mstep..q))
+  xf[, j] <- rnorm(ns, xb0, sqrt(model.q))
 }
 m = 1
 xm <- matrix(rep(0, ns*nt), nrow=ns)
@@ -41,6 +42,8 @@ for (k in 1:nt) {
     m <- m + 1
   }
   xm[, k] <- apply(xf, 1, mean)
+  l2[k] <- sqrt(mean((xm[, k] - xt[, k])^2))
+#  cat(k, l2[k], "\n")
   if (k < nt){
     for (j in 1:ne) {
       xf[, j] <- step.fom(l63, xf[, j], 1, dt, p, r, b)

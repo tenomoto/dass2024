@@ -1,8 +1,8 @@
 import numpy as np
 import l96
+import step
 from config_l96 import ns, F, dt, r, nt, \
         b, nw, ni, a, g_break, xt_fname, yo_fname, xf_fname
-import sys
 
 nc = nt // nw
 def calc_cost(dx, b, dy, r):
@@ -31,11 +31,11 @@ for k in range(nc):
     xb[:, 0] = x0
     for i in range(ni):
         for j in range(1, nw):
-            xb[:, j] = l96.fom(xb[:, j-1], 1, dt, F)
+            xb[:, j] = step.fom(l96.nl, xb[:, j-1], 1, dt, F)
         d = xb - yo
         ad = 0
         for j in range(nw-1, -1, -1):
-            ad = l96.adm(xb[:, j], ad, 1, dt, F) + d[:, j] / r
+            ad = step.adm(l96.nl, l96.ad, xb[:, j], ad, 1, dt, F) + d[:, j] / r
         xb[:, 0] -= a * ad
         cost = calc_cost(xb[:, 0] - x0, b, d, r)
         if i == 0:
@@ -50,7 +50,7 @@ for k in range(nc):
             l2[k] = np.sqrt(np.mean((xb[:, 0] - xt0)**2))
             break
         cost_old = cost
-    x0 = l96.fom(xb[:, 0], nw + 1, dt, F)
+    x0 = step.fom(l96.nl, xb[:, 0], nw + 1, dt, F)
 f_xt.close()
 f_yo.close()
 

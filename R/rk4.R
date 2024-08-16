@@ -24,25 +24,25 @@ rk4.ad <- function(f, fa, t, y, ya, h, ...) {
   y3 <- y + 0.5 * h * k2
   k3 <- f(t + 0.5 * h, y3, ...)
   y4 <- y + h * k3
-  
-  k1a = h * ya / 6
-  k2a = h * ya / 3
-  k3a = k2a
-  k4a = k1a
-  
-  dfa = fa(t + h, y4, k4a, ...)
-  ya = ya + dfa
-  k3a = k3a + h * dfa
-  k4a = 0
-  dfa = fa(t + 0.5 * h, y3, k3a, ...)
-  ya = ya + dfa
-  k2a = k2a + 0.5 * h * dfa
-  k3a = 0
-  dfa = fa(t + 0.5 * h, y2, k2a, ...)
-  ya = ya + dfa
-  k1a = k1a + 0.5 * h * dfa
-  k2a = 0
-  ya = ya + fa(t, y, k1a, ...)
-  k1a = 0
+
+  k1a <- h * ya / 6
+  k2a <- h * ya / 3
+  k3a <- k2a
+  k4a <- k1a
+
+  dfa <- fa(t + h, y4, k4a, ...)
+  ya <- ya + dfa
+  k3a <- k3a + h * dfa
+  k4a <- 0
+  dfa <- fa(t + 0.5 * h, y3, k3a, ...)
+  ya <- ya + dfa
+  k2a <- k2a + 0.5 * h * dfa
+  k3a <- 0
+  dfa <- fa(t + 0.5 * h, y2, k2a, ...)
+  ya <- ya + dfa
+  k1a <- k1a + 0.5 * h * dfa
+  k2a <- 0
+  ya <- ya + fa(t, y, k1a, ...)
+  k1a <- 0
   ya
 }

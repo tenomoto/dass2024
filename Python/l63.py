@@ -1,6 +1,7 @@
 import numpy as np
 import step
 
+
 def l63(t, w, p, r, b):
   return np.array([
             -p * w[0] + p * w[1],
@@ -12,7 +13,7 @@ def tl(t, wb, wt, p, r, b):
   return np.array([
              -p * wt[0] +     p * wt[1],
     (r - wb[2]) * wt[0] -         wt[1] - wb[0] * wt[2],
-          wb[2] * wt[0] + wb[1] * wt[1] -     b * wt[2]
+          wb[1] * wt[0] + wb[0] * wt[1] -     b * wt[2]
                      ])
 
 def ad(t, wb, dwa, p, r, b):
@@ -40,7 +41,7 @@ def test(a=1e-5):
     xa = step.adm(l63, ad, x0, dx, 1, dt, p, r, b)
     tdxdx = np.dot(dx, dx)
     dx0xa = np.dot(dx0, xa)
-    print(f"ADJ: dt^t dx - t(dx0) xa ={tdxdx}-{dx0xa}={tdxdx - dx0xa}")
+    print(f"ADJ: dt^t dx - t(dx0) xa ={tdxdx} - {dx0xa}={tdxdx - dx0xa}")
 
 # Run the test function
 if __name__ == "__main__":

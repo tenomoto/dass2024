@@ -1,5 +1,6 @@
 import numpy as np
 import l96
+import step
 import enkf
 import eakf
 import dist
@@ -41,7 +42,7 @@ for k in range(nt):
     st[k] = xa.std(axis=1).mean()
     if k < nt - 1:
         for i in range(ne):
-            xf[:, i] = l96.fom(xa[:, i], 1, dt, F)
+            xf[:, i] = step.fom(l96.nl, xa[:, i], 1, dt, F)
 f_xt.close()
 f_yo.close()
 

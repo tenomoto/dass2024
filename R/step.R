@@ -19,7 +19,7 @@ step.tlm <- function(f, df, x, dx, nstep, dt, ...) {
 }
 
 step.adm <- function(f, fa, x, xa, nstep, dt, ...) {
-  t <- nstep
+  t <- nstep * dt
   for (i in nstep:1){
     xa <- rk4.ad(f, fa, t, x, xa, dt, ...)
     t <- t - dt
