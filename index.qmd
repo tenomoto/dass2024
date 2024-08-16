@@ -26,4 +26,6 @@ slide-format: revealjs
 
 </div>
 
+このサイトの[ソース](https://github.com/tenomoto/dass2024)
+
 [スライド](slides/){target="_blank"}
