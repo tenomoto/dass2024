@@ -35,7 +35,7 @@ def test(a=1e-5):
     dx0 = a * x0
     x1 = step.fom(l63, x0 + dx0, 1, dt, p, r, b)
     dx = step.tlm(l63, tl, x0, dx0, 1, dt, p, r, b)
-    e = np.sqrt(((x1 - x - dx)**2).sum())
+    e = np.sqrt(((x1 - x - dx)**2).mean())
     print(f"TLM: a={a} l2={e}")
   
     xa = step.adm(l63, ad, x0, dx, 1, dt, p, r, b)

@@ -36,7 +36,7 @@ l63.test <- function(a=1e-5) {
   dx0 <- a * x0
   x1 <- step.fom(l63, x0 + dx0, 1, dt, p, r, b)
   dx <- step.tlm(l63, l63.tl, x0, dx0, 1, dt, p, r, b)
-  e <- sqrt(sum((x1 - x - dx)^2))
+  e <- sqrt(mean((x1 - x - dx)^2))
   cat("TLM:", "a=", a, "l2=", e, "\n")
   
   xa <- step.adm(l63, l63.ad, x0, dx, 1, dt, p, r, b)

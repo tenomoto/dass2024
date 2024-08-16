@@ -22,8 +22,8 @@ for k in range(1, nt):
         m += 1
 
 xf = np.zeros([ns, ne])
-for j in range(ne):
-    xf[:, j] = rng.normal(xb0, np.sqrt(model_q), ns)
+for i in range(ns):
+    xf[i, :] = rng.normal(xb0[i], np.sqrt(model_q), ne)
 m = 0
 xm = np.zeros([ns, nt])
 for k in range(nt):

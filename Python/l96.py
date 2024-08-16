@@ -26,7 +26,7 @@ def test(a=1e-5):
 #    dx0 = a * np.ones(ns)
     x1 = step.fom(nl, x0 + dx0, 1, dt, F)
     dx = step.tlm(nl, tl, x0, dx0, 1, dt, F)
-    e = np.sqrt(np.sum((x1 - x - dx)**2))
+    e = np.sqrt(((x1 - x - dx)**2).mean())
     print(f"TLM: a={a} l2={e}")
     
     xa = step.adm(nl, ad, x0, dx, 1, dt, F)

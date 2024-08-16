@@ -19,10 +19,10 @@ for (k in 2:nt) {
   }
 }
 
-l2 <- rep(0, ni)
-xf <- matrix(rep(0, ns * ne), nrow=ns)
-for (j in 1: ne) {
-  xf[, j] <- rnorm(ns, xb0, sqrt(model.q))
+l2 <- rep(0, nt)
+zf <- matrix(rep(0, (ns + 1) * ne), ncol=ne)
+for (j in 1:ne) {
+  zf[1:ns, j] <- rnorm(ns, xb0, sqrt(model.q))
 }
 m = 1
 xm <- matrix(rep(0, ns*nt), nrow=ns)
@@ -30,7 +30,7 @@ for (k in 1:nt) {
   if (k %% obs.int == 0) {
     dz <- matrix(rep(0, (ns + 1) * ne), ncol=ne)
     for (i in 1:ns) {
-      zf <- rbind(xf, xf[i,])
+      zf[ns+1,] <- zf[i,]
       if (fil == "enkf") {
         yo.p <- rnorm(ns, yo[i, m], sqrt(obs.r[i]))
         dz <- dz + enkf.analysis(zf, yo.p, obs.r[i])
@@ -38,15 +38,15 @@ for (k in 1:nt) {
         dz <- dz + eakf.analysis(zf, yo[i, m], obs.r[i])
       }
     }
-    xf <- xf + dz[1:ns,]
+    zf <- zf + dz
     m <- m + 1
   }
-  xm[, k] <- apply(xf, 1, mean)
+  xm[, k] <- apply(zf[1:ns,], 1, mean)
   l2[k] <- sqrt(mean((xm[, k] - xt[, k])^2))
 #  cat(k, l2[k], "\n")
   if (k < nt){
     for (j in 1:ne) {
-      xf[, j] <- step.fom(l63, xf[, j], 1, dt, p, r, b)
+      zf[1:ns, j] <- step.fom(l63, zf[1:ns, j], 1, dt, p, r, b)
     }    
   }
 }

@@ -33,7 +33,7 @@ l96.test <- function(a=1e-5) {
   dx0 <- a * rnorm(ns)
   x1 <- step.fom(l96, x0 + dx0, 1, dt, F)
   dx <- step.tlm(l96, l96.tl, x0, dx0, 1, dt, F)
-  e <- sqrt(sum((x1 - x - dx)^2))
+  e <- sqrt(mean((x1 - x - dx)^2))
   cat("TLM:", "a=", a, "l2=", e, "\n")
   
   xa <- step.adm(l96, l96.ad, x0, dx, 1, dt, F)

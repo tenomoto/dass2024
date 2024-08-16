@@ -31,7 +31,6 @@ xb <- matrix(rep(0, ns * nt), nrow=ns)
 xb[, 1] <- xb0
 
 for (i in 1:ni) {
-  m <- 1
   for (j in 2:nt) {
     xb[, j] <- step.fom(l63, xb[, j-1], 1, dt, p, r, b)    
   }
