@@ -51,6 +51,7 @@ clean:
 .f90.o:
 	$(FC) $(FFLAGS) -c $<
 
+l63_module.o : step_module.o random_module.o
 l96_module.o : step_module.o random_module.o
 step_module.o : rk4_module.o
 run_l63_ens.o : l63_module.o enkf_module.o eakf_module.o random_module.o step_module.o
