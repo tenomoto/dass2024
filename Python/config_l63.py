@@ -22,4 +22,4 @@ a = 5e-4
 
 # ens
 ne = 10
-fil = "eakf"
+fil = "enkf"

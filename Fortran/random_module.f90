@@ -9,9 +9,13 @@ contains
     integer, allocatable :: s(:)
 
     call random_seed(size=n)
+    print *, "seed size=", n
     allocate(s(n))
     s = seed
     call random_seed(put=s)
+    call random_seed(get=s)
+    print *, "seed=", s
+    deallocate(s)
 
   end subroutine random_set_seed
 

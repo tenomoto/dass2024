@@ -13,10 +13,10 @@ rng = np.random.default_rng(seed)
 
 f_xt = open(xt_fname, "rb")
 f_yo = open(yo_fname, "rb")
-xf = np.zeros([ns, ne])
+zf = np.zeros([ns + 1, ne])
 with open("xf_l96.dat", "rb") as f:
     for j in range(ne):
-        xf[:, j] = np.fromfile(f, count=ns)
+        zf[:ns, j] = np.fromfile(f, count=ns)
 
 e1 = np.zeros(nt)
 e2 = np.zeros(nt)
@@ -26,7 +26,7 @@ for k in range(nt):
     yo = np.fromfile(f_yo, count=ns)
     dz = np.zeros([ns+1, ne])
     for i in range(ns):
-        zf = np.vstack([xf, xf[i,]])
+        zf[ns, ] = zf[i, ]
         d = dist.linear_periodic(np.arange(ns), i)
         loc_inf = np.append(dist.ga(d, c_loc), infl)
         if fil == "enkf":
@@ -35,14 +35,14 @@ for k in range(nt):
             dz = dz + enkf.analysis(zf, yo_p, r, loc_inf)
         else:
             dz = dz + eakf.analysis(zf, yo[i], r, loc_inf)
-    xa = xf + dz[0:-1, :]
+    xa = (zf + dz)[:ns, ]
     e = calc_error(xa, xt)
     e1[k] = e[0]
     e2[k] = e[1]
     st[k] = xa.std(axis=1).mean()
     if k < nt - 1:
         for i in range(ne):
-            xf[:, i] = step.fom(l96.nl, xa[:, i], 1, dt, F)
+            zf[:ns, i] = step.fom(l96.nl, xa[:, i], 1, dt, F)
 f_xt.close()
 f_yo.close()
 

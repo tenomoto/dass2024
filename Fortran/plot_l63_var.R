@@ -14,7 +14,7 @@ pngname <- paste0("l63_var.png")
 png(pngname, w, h)
 tab10.new <- c('#5778a4', '#e49444', '#d1615d', '#85b6b2', '#6a9f58',
                '#e7ca60', '#a87c9f', '#f1a2a9', '#967662', '#b8b0ac')
-title <- paste("L63 Var", " ni=", ni, " L2", format(l2, digits=3))
+title <- paste("L63 Var", " ni=", ni, " L2=", format(l2, digits=3))
 off <- c(0, 40, 60)
 t <- (1:nt) * dt
 to <- ((1:nobs) * obs.int) * dt

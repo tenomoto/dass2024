@@ -11,31 +11,43 @@ xt <- matrix(rep(0, ns * nt), nrow=ns)
 xt[, 1] <- xt0
 yo <- matrix(rep(0, ns * nobs), nrow=ns)
 m = 1
+#con.true <- file("xt_l63.dat", "wb")
+#con.obs <- file("yo_l63.dat", "wb")
 for (k in 2:nt) {
   xt[, k] <- step.fom(l63, xt[, k-1], 1, dt, p, r, b)
   if (k %% obs.int == 0) {
     yo[, m] <- rnorm(ns, xt[, k], sqrt(obs.r))
+#    writeBin(xt[, k], con.true)
+#    writeBin(yo[, m], con.obs)
     m <- m + 1
   }
 }
+#close(con.true)
+#close(con.obs)
 
 l2 <- rep(0, nt)
 zf <- matrix(rep(0, (ns + 1) * ne), ncol=ne)
+#con.ens <- file("xf_l63.dat", "wb")
 for (j in 1:ne) {
   zf[1:ns, j] <- rnorm(ns, xb0, sqrt(model.q))
+#  writeBin(zf[1:ns, j], con.ens)
 }
+#close(con.ens)
+
 m = 1
 xm <- matrix(rep(0, ns*nt), nrow=ns)
 for (k in 1:nt) {
   if (k %% obs.int == 0) {
+    cat("m=", m, "\n")
     dz <- matrix(rep(0, (ns + 1) * ne), ncol=ne)
     for (i in 1:ns) {
       zf[ns+1,] <- zf[i,]
       if (fil == "enkf") {
-        yo.p <- rnorm(ns, yo[i, m], sqrt(obs.r[i]))
+        yo.p <- rnorm(ne, yo[i, m], sqrt(obs.r[i]))
         dz <- dz + enkf.analysis(zf, yo.p, obs.r[i])
       } else {
         dz <- dz + eakf.analysis(zf, yo[i, m], obs.r[i])
+        cat(dz, "\n")
       }
     }
     zf <- zf + dz

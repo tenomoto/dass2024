@@ -21,27 +21,27 @@ for k in range(1, nt):
         yo[:, m] = rng.normal(xt[:, k], np.sqrt(obs_r), ns)
         m += 1
 
-xf = np.zeros([ns, ne])
+zf = np.zeros([ns + 1, ne])
 for i in range(ns):
-    xf[i, :] = rng.normal(xb0[i], np.sqrt(model_q), ne)
+    zf[i, :] = rng.normal(xb0[i], np.sqrt(model_q), ne)
 m = 0
 xm = np.zeros([ns, nt])
 for k in range(nt):
     if (k + 1) % obs_int == 0:
         dz = np.zeros([ns+1, ne])
         for i in range(ns):
-            zf = np.vstack([xf, xf[i,:]])
+            zf[ns, :] = zf[i,:]
             if fil == "enkf":
-                yo_p = rng.normal(yo[i, m], np.sqrt(obs_r[i]), nw)
+                yo_p = rng.normal(yo[i, m], np.sqrt(obs_r[i]), ne)
                 dz += enkf.analysis(zf, yo_p, obs_r[i])
             else:
                 dz += eakf.analysis(zf, yo[i, m], obs_r[i])
-        xf += dz[0:ns,:]
+        zf += dz
         m += 1
-    xm[:, k] = xf.mean(axis=1)
+    xm[:, k] = zf[:ns,:].mean(axis=1)
     if k < nt:
         for j in range(ne):
-            xf[:, j] = step.fom(l63, xf[:, j], 1, dt, p, r, b)
+            zf[:ns, j] = step.fom(l63, zf[:ns, j], 1, dt, p, r, b)
 
 tab = ["tab:blue", "tab:orange", "tab:red"]
 

@@ -11,9 +11,8 @@ program run_l63_ens
   character(len=*), parameter :: nml = "l63.nml"
   integer, parameter ::  seed = 514, ns = 3, nopts = 3, un = 31
   real(dp), allocatable :: xt(:, :), yo(:, :), yo_p(:), &
-    zf(:, :), dz(:, :), xm(:, :), l2(:)
+    zf(:, :), dz(:, :), loc_inf(:), xm(:, :), l2(:)
   integer :: nobs, i, j, k, m
-  real(dp) :: loc_inf(1) = 1.0_dp
   character(len=256) :: fname
 
   character(len=4) :: fil
@@ -34,7 +33,8 @@ program run_l63_ens
   nobs = nt / obs_int
 
   allocate(xt(ns, nt), yo(ns, nobs), yo_p(ne), &
-    zf(ns+1, ne), dz(ns+1, ne), xm(ns, nt), l2(nt))
+    zf(ns+1, ne), dz(ns+1, ne), loc_inf(ns+1), xm(ns, nt), l2(nt))
+  loc_inf = 1.0_dp
 
   call random_set_seed(seed)
 
@@ -45,7 +45,7 @@ program run_l63_ens
     if (mod(k, obs_int) == 0) then
       yo(:, m) = xt(:, k) + sqrt(obs_r) * rnorm(ns)
       m = m + 1
-    end if
+   end if
   end do
   do j = 1, ne
     zf(1:ns, j) = xb0 + sqrt(model_q) * rnorm(ns)
@@ -97,6 +97,6 @@ program run_l63_ens
   write(un, *) "fil <-", "'", fil, "'"
   close(un)
 
-  deallocate(xt, yo, yo_p, zf, dz, xm, l2)
+  deallocate(xt, yo, yo_p, zf, dz, loc_inf, xm, l2)
 
 end program run_l63_ens

@@ -12,7 +12,8 @@ set.seed(seed)
 con.true <- file("xt_l96.dat", "rb")
 con.obs <- file("yo_l96.dat", "rb")
 con.ens <- file("xf_l96.dat", "rb")
-xf <- matrix(readBin(con.ens, "numeric", ns * ne), nrow=ns)
+zf <- matrix(rep(0, (ns + 1) * ne), ncol=ne)
+zf[1:ns,] <- matrix(readBin(con.ens, "numeric", ns * ne), nrow=ns)
 close(con.ens)
 
 e1 <- rep(0, nt)
@@ -23,7 +24,7 @@ for (k in 1:nt) {
   yo <- readBin(con.obs, "numeric", ns)
   dz <- matrix(rep(0, (ns + 1) * ne), ncol=ne)
   for (i in 1:ns) {
-    zf <- rbind(xf, xf[i,])
+    zf[ns+1,] <- zf[i,]
     d <- linear.periodic.dist(1:ns, i)
     loc.inf <- c(ga(d, c.loc), infl)
     if (fil == "enkf") {
@@ -34,14 +35,14 @@ for (k in 1:nt) {
       dz <- dz + eakf.analysis(zf, yo[i], r, loc.inf)
     }
   }
-  xa <- xf + dz[1:ns,]
+  xa <- (zf + dz)[1:ns,]
   e <- calc.error(xa, xt)
   e1[k] <- e$e1
   e2[k] <- e$e2
   st[k] <- mean(apply(xa, 1, sd))
   if (k < nt) {
     for (i in 1:ne) {
-      xf[,i] <- step.fom(l96, xa[,i], 1, dt, F)   
+      zf[1:ns,i] <- step.fom(l96, xa[,i], 1, dt, F)   
     }
   }
 }
