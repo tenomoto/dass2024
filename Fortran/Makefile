@@ -18,7 +18,7 @@ L96VARSRCS = run_l96_var.f90 l96_module.f90 step_module.o rk4_module.f90 random_
 L96VAROBJS = $(L96VARSRCS:.f90=.o)
 L96ENSSRCS = run_l96_ens.f90 l96_module.f90 step_module.o rk4_module.f90 random_module.f90 enkf_module.f90 eakf_module.f90
 L96ENSOBJS = $(L96ENSSRCS:.f90=.o)
-TESTSRCS = test.f90  random_module.f90 l63_module.f90 l96_module.f90 step_module.o rk4_module.o io_module.f90
+TESTSRCS = test.f90  random_module.f90 l63_module.f90 l96_module.f90 step_module.o rk4_module.o
 TESTOBJS = $(TESTSRCS:.f90=.o)
 EXECS = run_wind_ens run_l63_ens run_l63_var prep_l96 run_l96_var run_l96_ens test
 
@@ -60,4 +60,4 @@ prep_l96.o : l96_module.o rk4_module.o  random_module.o
 run_l96_var.o : l96_module.o step_module.o random_module.o step_module.o
 run_l96_ens.o : l96_module.o enkf_module.o eakf_module.o
 run_wind_ens.o :  random_module.o enkf_module.o eakf_module.o
-test.o :  random_module.o l63_module.o l96_module.o io_module.o
+test.o :  random_module.o l63_module.o l96_module.o
