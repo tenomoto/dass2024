@@ -1,4 +1,4 @@
-program run_wind_enkf
+program run_wind_ens
   use, intrinsic :: iso_fortran_env, only: dp => real64
   use random_module, only: random_set_seed, rnorm => random_normal
   use enkf_module, only: enkf_analysis
@@ -68,4 +68,4 @@ contains
   end function calc_speed
 
 
-end program run_wind_enkf
+end program run_wind_ens

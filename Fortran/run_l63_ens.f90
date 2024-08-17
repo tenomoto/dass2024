@@ -20,8 +20,8 @@ program run_l63_ens
   real(dp) :: p, r, b, dt, model_q
   real(dp) ::  xt0(ns), xb0(ns), obs_r(ns), opts(nopts)
 
-  namelist /l63/ p, r, b, dt, model_q, nt, obs_int, xt0, xb0, obs_r
-  namelist /ens/ ne, fil
+  namelist /l63/ p, r, b, dt, nt, obs_int, xt0, xb0, obs_r
+  namelist /ens/ model_q, ne, fil
 
   open(unit=un, file=nml, status="old")
   read(unit=un, nml=l63)

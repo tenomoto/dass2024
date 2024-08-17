@@ -13,6 +13,7 @@ website:
       - model.qmd
       - var.qmd
       - enkf.qmd
+      - excercise.qmd
 
 appendix-style: plain
 

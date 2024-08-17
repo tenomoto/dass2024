@@ -15,8 +15,10 @@ slide-format: revealjs
 
 ## コース
 
-データ同化の知識に応じて、初級と中級があります。
-プログラミング言語はPythonとFortranに対応しています。
+データ同化の知識に応じて、初級と中級がある。
+プログラミング言語はPythonとFortranに対応している。
+
+## 演習課題の説明スライド
 
 <div>
 
@@ -26,6 +28,9 @@ slide-format: revealjs
 
 </div>
 
-このサイトの[ソース](https://github.com/tenomoto/dass2024)
-
 [スライド](slides/){target="_blank"}
+
+## リンク
+
+- [海洋データ同化夏の学校](http://jmsfmml.or.jp/j/event/summerschool/2024/2024index.html)
+- サイトの[ソース](https://github.com/tenomoto/dass2024)

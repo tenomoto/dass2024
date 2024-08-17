@@ -424,4 +424,14 @@ y^\mathrm{a} &= y^\mathrm{a} + f^\mathrm{a}(t_n,\,y_n,\,k_1^\mathrm{a})\\
 k_1^\mathrm{a} &= 0
 \end{aligned}
 $$
+## 接線型及び随伴の動作確認
 
+接線型は
+$$N(\mathbf{w}+\Delta\mathbf{w})-N(\mathbf{w})\approx \mathbf{L}(\mathbf{w})\Delta\mathbf{w}$$ {#eq-var-tlm_check}
+が近似的に成り立つことを確認する。ここで$N$は非線型モデル、$\mathbf{L}$は接線型モデル
+、$\mathbf{w}$は状態、$\Delta\mathbf{w}$は摂動を表す。精度は$\mathbf{w}$における$N$の非線型の強さや摂動$\Delta\mathbf{w}$の振幅に依存する。
+
+随伴は
+$$(\mathbf{L}(\mathbf{w})\Delta\mathbf{w})^\mathrm{T}(\mathbf{L}(\mathbf{w})\Delta\mathbf{w})=\Delta\mathbf{w}^\mathrm{T}[\mathbf{L}(\mathbf{w})^\mathrm{T}(\mathbf{L}(\mathbf{w})\Delta\mathbf{w})]$$ {#eq-var-adm_check}
+が成り立つことを確認する。
+厳密に成り立つか、機械精度以下の誤差（下1〜2桁の差異）でなければバグが存在していることを示す。

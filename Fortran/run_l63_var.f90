@@ -15,10 +15,10 @@ program run_l63_var
   character(len=256) :: fname
 
   integer :: nt, obs_int, ni
-  real(dp) :: p, r, b, dt, model_q, bgd_b, a
+  real(dp) :: p, r, b, dt, bgd_b, a
   real(dp) ::  xt0(ns), xb0(ns), ad(ns), obs_r(ns), opts(nopts)
 
-  namelist /l63/ p, r, b, dt, model_q, nt, obs_int, xt0, xb0, obs_r
+  namelist /l63/ p, r, b, dt, nt, obs_int, xt0, xb0, obs_r
   namelist /var/ bgd_b, ni, a
 
   open(unit=un, file=nml, status="old")
