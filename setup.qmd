@@ -112,12 +112,14 @@ JupyterLabまたはJupyter Notebookを起動すると、既定のブラウザに
 
 ### エディタのインストール
 
-ソースコードを書くには、テキストエディタを用いる。私は[neovim](https://neovim.io/)を使っている。必要なものを一つ入れる。
+ソースコードを書くには、テキストエディタを用いる。必要なものを一つ入れる。
 ```powershell
 > winget install Neovim.Neovim
 > winget install GNU.Emacs
 > winget install Microsoft.VisualStudioCode
 ```
+
+私は[neovim](https://neovim.io/)を使っている。Neovim（コマンド名は`nvim`）を起動して`:Tutor`とタイプすると、チュートリアルが始まる。
 
 ### gfortranとRのインストール
 

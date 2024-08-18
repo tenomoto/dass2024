@@ -10,6 +10,16 @@ title: Fortran
 
 倍精度のパラメタには、組込の`iso_fortran_env`から`real64`を`dp`として利用した。PythonやRとの互換性を考慮して、入出力には`access="stream"`を用いた。
 
+描画するためのRスクリプトをターミナルから実行するには、`Rscript`コマンドを用いる。たとえば`run_l63_var`の実行後、結果を描くには次のようにする。`l63_var.png`ができる。
+```powershell
+> Rscript plot_l63_var.R
+```
+Rを起動して`source()`を使ってもよい。
+```r
+> source("plot_l63_var.R")
+```
+Rは探索的データ解析のための道具であるので、Rのコンソール上で対話的に分析を行うほうがむしろ普通である。
+
 ## 共通モジュール
 
 - `random_module.f90`: 乱数モジュール

@@ -6,6 +6,30 @@ title: Python
 
 Numpyは行優先だが、RやFortranと同様に状態を列ベクトルとして、添字を逆転させることはしていない。メモリ上の配置は異なるが、ファイル出力は状態毎に行って、R/Fortranとファイルの互換性を保っている。
 
+サンプルスクリプトを試す場合は、スクリプトのあるディレクトリに移動してからJupyterを起動する。
+現在のディレクトリの下に`dass2024`が展開されているものと仮定する。
+
+```powershell
+> cd dass2024/Python
+```
+Jupyterを使う場合はJupyterを起動する。
+
+```powershell
+> jupyter notebook
+```
+
+Jupyter Notebookを使う場合は、NewボタンからPython 3 (ipykernel)を選択してノートブックを作る。セルに
+
+```jupyter
+%load run_l63_ens.py
+```
+
+とタイプしてshift+enterするとソースが取り込まれる。
+もう一度セルをクリックしてshift+enterすると実行される。
+
+![Pythonスクリプトの取り込み](jupyter.png)
+
+
 ## 共通モジュール
 
 - `dist.py`: 距離計算
