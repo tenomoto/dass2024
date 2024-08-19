@@ -19,7 +19,7 @@ format:
 ## 逐次アンサンブルカルマンフィルタ
 
 - データ同化を含む逆問題では、<br>$P(\mathbf{x})$及び$P(\mathbf{y}|\mathbf{x})$から$P(\mathbf{x}|\mathbf{y})$を推定。
-- 観測誤差共分散$\mathbf{R}$が対角なら、観測を一つずつ<br>同化できる[@Whitaker-Hamill:2002;Anderson:2003:。
+- 観測誤差共分散$\mathbf{R}$が対角なら、観測を一つずつ<br>同化できる[@Whitaker-Hamill:2002;@Anderson:2003]。
 - 単一線型観測の最大後験推定
   * インクリメントを目的変数、<br>イノベーションを説明変数とする線型回帰。
   * カルマンゲインは回帰直線の傾き。
@@ -46,9 +46,72 @@ EAKF: Ensemble Adjustment Kalman Filter [@Anderson:2003]
 4. 線型回帰でアンサンブル平均のインクリメントを<br>計算する。
 5. 解析アンサンブルが解析誤差共分散を表すように<br>アンサンブルを更新する。
 
+## 観測演算子
+
+典型的な非線型観測演算子、風速の単一観測を同化する。
+
+:::: {.columns}
+
+:::{.column width="60%"}
+$$
+|u| = h(u, v) = \sqrt{u^2 + v^2}
+$$
+
+- 第一推定値 $\mathbf{x}^\mathrm{f} = (2, 4),\mathrm{ms}^{-1}$
+- アンサンブルメンバー数1000
+- 標準偏差 $\sigma_u = \sigma_v = 2\,\mathrm{ms}^{-1}$
+- 観測 $3\,\mathrm{ms}^{-1}$ 標準偏差 $\sigma_\mathrm{o} = 0.3\,\mathrm{ms}^{-1}$
+:::
+
+::: {.column width="40%"}
+```{r}
+#| code-fold: true
+#| file: "../R/eakf.R"
+```
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+
+set.seed(514)
+ne <- 1000
+sf <- 2
+xf <- c(2, 4)
+yo <- 3
+so <- 0.3
+r <- so^2
+
+calc.speed <- function(u, v) {
+  sqrt(u * u + v * v)
+}
+
+u <- scale(rnorm(ne, xf[1], sf), scale=FALSE) + xf[1]
+v <- scale(rnorm(ne, xf[2], sf), scale=FALSE) + xf[2]
+us <- calc.speed(u, v)
+zf <- rbind(t(u), t(v), t(us))
+za <- zf + eakf.analysis(zf, yo, r)
+za.mean <- apply(za, 1, mean)
+
+plot(u, v, xlim = c(-5, 10), ylim = c(-5, 10), asp=1,
+     pch=16, cex=0.5, col="gray")
+theta <- (0:359) / (2 * pi)
+points(xf[1], xf[2], pch=18, cex=1.5, col="black")
+points(za[1,], za[2,], pch=16, cex=0.5, col="lightblue")
+points(za.mean[1], za.mean[2], pch=18, cex=1.5, col="blue")
+
+lines((yo + so) * cos(theta), (yo + so) * sin(theta), type="l")
+lines((yo - so) * cos(theta), (yo - so) * sin(theta), type="l")
+```
+:::
+
+::::
+
 ## 非線型モデル
 
 @Lorenz:1963 モデル
+
+:::: {.columns}
+
+:::{.column width="30%"}
 $$
 \begin{align}
 \dot{X} &= -\sigma X + \sigma Y \\
@@ -56,6 +119,87 @@ $$
 \dot{Z} &= XY - \beta Z
 \end{align}
 $$
+:::
+
+::: {.column width="70%"}
+```{r}
+#| cache: false
+#| webgl: true
+
+library(rgl)
+
+options(rgl.useNULL = TRUE)
+rgl::setupKnitr()
+
+l63 <- function(t, w, p, r, b){
+  c(
+            -p * w[1] + p * w[2],
+    (r - w[3]) * w[1] -     w[2],
+                     w[1] * w[2] - b * w[3]    
+  )
+}
+
+rk4 <- function(f, t, y, h, ...) {
+  k1 <- f(t, y, ...)
+  k2 <- f(t + 0.5 * h, y + 0.5 * h * k1, ...)
+  k3 <- f(t + 0.5 * h, y + 0.5 * h * k2, ...)
+  k4 <- f(t + h, y + h * k3, ...)
+  y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+}
+
+step.fom <- function(f, x, nstep, dt, ...) {
+  t <- 0
+  for (i in 1:nstep) {
+    x <- rk4(f, t, x, dt, ...)
+    t <- t + dt
+  }
+  x
+}
+
+tab10.new <- c('#5778a4', '#e49444', '#d1615d', '#85b6b2', '#6a9f58',
+               '#e7ca60', '#a87c9f', '#f1a2a9', '#967662', '#b8b0ac')
+
+ns <- 3
+x0 <- c(1, 3, 5)
+x0.p <- c(1.1, 3.3, 5.5)
+p <- 10
+r <- 32
+b <- 8 / 3
+dt <- 0.01
+nt <- 1000
+
+x.rk4 <- matrix(rep(0, ns * nt), nrow=ns)
+x.rk4[, 1] <- x0
+x.rk4p <- matrix(rep(0, ns * nt), nrow=ns)
+x.rk4p[, 1] <- x0.p
+for (j in 2:nt) {
+  t <- (j - 1) * dt
+  x.rk4[, j] <- step.fom(l63, x.rk4[, j-1], 1, dt, p, r, b)
+  x.rk4p[, j] <- step.fom(l63, x.rk4p[, j-1], 1, dt, p, r, b) 
+}
+
+plot3d(x.rk4[1,], x.rk4[2,], x.rk4[3,],
+  axes=TRUE, xlab="X", ylab="Y", zlab="Z", type='l',
+  lwd=2, col=tab10.new[1])
+plot3d(x.rk4p[1,], x.rk4p[2,], x.rk4p[3,], type="l",
+  lwd=3, col=tab10.new[2], add=TRUE)
+plot3d(x.rk4[1,1], x.rk4[2,1], x.rk4[3,1],
+  type="s", size=1, col=tab10.new[1], add=TRUE)
+plot3d(x.rk4p[1,1], x.rk4p[2,1], x.rk4[3,1],
+  type="s", size=1, col=tab10.new[2], add=TRUE)
+```
+:::
+
+::::
+
+##
+
+![](l63_eakf.png)
+## 変分法
+
+- 第一推定値や観測からのずれの指標である<br>コスト函数$J$を最小化する。
+- 4次元変分法同化では、同化窓と呼ばれる期間の観測を用いたMAP推定。
+- $\nabla_{\mathbf{x}_0}J$を随伴モデルを用いて求め、初期値を推定。
 
 ## 接線型モデル
 
@@ -68,12 +212,13 @@ $$
 \end{align}
 $$
 
+
 ## 随伴モデル
 
 接線型モデル
 $$
 \begin{bmatrix}
-\dot{\delta X}\\\dot{\delta Y}\\\delta Z
+\dot{\delta X}\\\dot{\delta Y}\\\dot{\delta Z}
 \end{bmatrix}
 =\begin{bmatrix}
 -\sigma & \sigma &   0\\
@@ -97,29 +242,13 @@ X^\mathrm{a} \\ Y^\mathrm{a} \\ Z^\mathrm{a}
     0   &    -X  & -\beta
 \end{bmatrix}
 \begin{bmatrix}
-\dot{X^\mathrm{a}}\\\dot{Y^\mathrm{a}}\\ Z^\mathrm{a}
+\dot{X^\mathrm{a}}\\\dot{Y^\mathrm{a}}\\ \dot{Z^\mathrm{a}}
 \end{bmatrix}
 $$
 
-## 変分法
+##
 
-- 第一推定値や観測からのずれの指標であるコスト函数$J$を最小化する。
-- 4次元変分法同化では、同化窓と呼ばれる期間の観測を用いたMAP推定。
-- 初期値を推定するには、$\nabla_{\mathbf{x}_0}J$を随伴モデルを用いて求める。
-
-## 観測演算子
-
-風速は典型的な非線型観測演算子。
-$$
-|u| = h(u, v) = \sqrt{u^2 + v^2}
-$$ {#eq-model-us}
-
-風速の単一観測を同化する。
-
-- 第一推定値 $\mathbf{x}^\mathrm{f} = (2, 4),\mathrm{ms}^{-1}$
-- アンサンブルメンバー数1000
-- 標準偏差 $\sigma_u = \sigma_v = 2\,\mathrm{ms}^{-1}$
-- 観測 $3\,\mathrm{ms}^{-1}$ 標準偏差 $\sigma_\mathrm{o} = 0.3\,\mathrm{ms}^{-1}$
+![](l63_var.png)
 
 ## 初級
 
