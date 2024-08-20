@@ -7,6 +7,7 @@ format:
     chalkboard:
       buttons: false
     preview-links: auto
+    auto-stretch: false
 ---
 
 ## 方針
@@ -60,7 +61,7 @@ $$
 - 第一推定値 $\mathbf{x}^\mathrm{f} = (2, 4),\mathrm{ms}^{-1}$
 - アンサンブルメンバー数1000
 - 標準偏差 $\sigma_u = \sigma_v = 2\,\mathrm{ms}^{-1}$
-- 観測 $3\,\mathrm{ms}^{-1}$ 標準偏差 $\sigma_\mathrm{o} = 0.3\,\mathrm{ms}^{-1}$
+- 観測 $3\,\mathrm{ms}^{-1}$<br>標準偏差 $\sigma_\mathrm{o} = 0.3\,\mathrm{ms}^{-1}$
 :::
 
 ::: {.column width="40%"}
@@ -192,9 +193,10 @@ plot3d(x.rk4p[1,1], x.rk4p[2,1], x.rk4[3,1],
 
 ::::
 
-##
+---
 
-![](l63_eakf.png)
+![](l63_eakf.png){width=80% fig-align="center"}
+
 ## 変分法
 
 - 第一推定値や観測からのずれの指標である<br>コスト函数$J$を最小化する。
@@ -246,20 +248,20 @@ X^\mathrm{a} \\ Y^\mathrm{a} \\ Z^\mathrm{a}
 \end{bmatrix}
 $$
 
-##
+---
 
-![](l63_var.png)
+![](l63_var.png){width=80% fig-align=center}
 
 ## 初級
 
 平均、分散・共分散、線型回帰など統計の基礎が前提。
 
-1. 逐次EnKF/EAKFを実装し、風の単一観測の同化で、3DVarの解と比較する。
+1. 逐次EnKF/EAKFを実装し、風の単一観測の同化で、<br>3DVarの解と比較する。
   - 東西風$u$または$v$、風速$|u|$、風速と風向をそれぞれ同化。
   - EAKFが線型回帰になっていることを図示する。
   - 3DVarの解を求めて図に追加する。
   
-2.（応用）Lorenz-63に4DVar及びEAKFを適用し、両者を比較する。
+2.（応用）Lorenz-63に4DVar及びEAKFを適用し、<br>両者を比較する。
 
 ## 中級
 
@@ -267,7 +269,7 @@ $$
 
 1. Lorenz-96の非線型モデル、接線型モデル、随伴モデルを実装する。
 2. インフレーションと局所化をEnKF/EAKFに導入する。
-3. （応用）任意のモデルにEnKF/EAKF、変分法を適用する。
+3. （応用）任意のモデルにEnKF/EAKF、変分法を<br>適用する。
 
 ## 環境構築
 
@@ -282,12 +284,12 @@ $$
 
 $$\begin{pmatrix}1 & 2 & 3 & 4 & 5 & 6\end{pmatrix}$$
 
-- 列優先（Fortran, R）と行優先（Numpy）
+- 列優先（Fortran, R）: 各メンバーの状態が連続
+- 行優先（Numpy）: 各状態のメンバーが連続
 
 $$\begin{pmatrix}1 & 3 & 5\\ 2 & 4  & 6\end{pmatrix}\; \begin{pmatrix}1 & 2 & 3\\ 4 & 5  & 6\end{pmatrix}\;$$
 
 - ファイルの読み書きもこれに準じる。
-- 列優先は各メンバーの状態が連続、行優先は各状態のメンバーが連続に並ぶ。
 
 ## 参考文献
 
