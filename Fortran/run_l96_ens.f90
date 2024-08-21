@@ -1,6 +1,6 @@
 program run_l96_ens
   use, intrinsic :: iso_fortran_env, only: dp => real64
-  use random_module, only: rnorm => random_normal
+  use random_module, only: random_set_seed, rnorm => random_normal
   use step_module, only: step_fom
   use l96_module, only: l96_nl
   use enkf_module, only: enkf_analysis
@@ -37,6 +37,9 @@ program run_l96_ens
   if (fil == "enkf") then
     allocate(yo_p(ne))
   end if
+
+  call random_set_seed(seed)
+
   open(unit=un_xf, file=xf_fname, access="stream", form="unformatted", &
         status="old", action="read")
   read(unit=un_xf) zf(1:ns, :)
