@@ -424,6 +424,7 @@ y^\mathrm{a} &= y^\mathrm{a} + f^\mathrm{a}(t_n,\,y_n,\,k_1^\mathrm{a})\\
 k_1^\mathrm{a} &= 0
 \end{aligned}
 $$
+
 ## 接線型及び随伴の動作確認
 
 接線型は
