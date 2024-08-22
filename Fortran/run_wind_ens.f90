@@ -24,6 +24,9 @@ program run_wind_ens
   r = so**2
   allocate(yo_p(ne), u(ne), v(ne), zf(k, ne), za(k, ne), loc_inf(3))
   loc_inf = 1.0_dp
+
+  call random_set_seed(seed)
+
   u = rnorm(ne, uf, sf)
   zf(1, :) = u - sum(u) / ne + uf
   v = rnorm(ne, vf, sf)
