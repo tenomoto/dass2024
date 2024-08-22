@@ -63,7 +63,7 @@ $$
 (\mathbf{I} - \mathbf{P})^{-1} = \mathbf{I} + \frac{1}{1 - \alpha}\mathbf{P}
 $$
 
-において$\mathbf{} = -\boldsymbol\Sigma^\mathrm{f}_{0k}/r$、$-\sigma{kk}/r$を用いた。
+において$\mathbf{} = -\boldsymbol\Sigma^\mathrm{f}_{0k}/r$、$-\sigma_{kk}/r$を用いた。
 同化に伴う共分散の変化は
 
 $$
