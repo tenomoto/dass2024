@@ -155,7 +155,7 @@ Rを起動したいときは、`R.exe`と打鍵する。
 
 ## Mac
 
-プログラミング習の範囲ではMacでも、公式サイトのPythonインストーラでよい。コンパイルが必要な外部ライブラリに依存する場合は、[MacPorts](https://www.macports.org/)を使ってインストールすることをお勧めする。Howbrewはネット上に多くの情報があるが、一貫した環境を提供するMacPortsを推す（Qiitaの[解説](https://qiita.com/tenomoto/items/66614f982de96641d662)）。MacPortsの既定のインストール先は`/opt/local`である。[Homebrew](https://docs.brew.sh/Installation)は、Intel Macでは`/usr/local`に、インストールされるので、自分でコンパイルしたものと混在することになる。Apple Siliconでは（ついに学んだのか）`/opt/homebrew`にインストールされる。IntelからApple Siliconに乗り換えたときに面倒が起きそうである。
+プログラミング習の範囲ではMacでも、公式サイトのPythonインストーラでよい。コンパイルが必要な外部ライブラリに依存する場合は、[MacPorts](https://www.macports.org/)を使ってインストールすることをお勧めする。Homebrewはネット上に多くの情報があるが、一貫した環境を提供するMacPortsを推す（Qiitaの[解説](https://qiita.com/tenomoto/items/66614f982de96641d662)）。MacPortsの既定のインストール先は`/opt/local`である。[Homebrew](https://docs.brew.sh/Installation)は、Intel Macでは`/usr/local`に、インストールされるので、自分でコンパイルしたものと混在することになる。Apple Siliconでは（ついに学んだのか）`/opt/homebrew`にインストールされる。IntelからApple Siliconに乗り換えたときに面倒が起きそうである。
 
 ### MacPortsのインストール
 

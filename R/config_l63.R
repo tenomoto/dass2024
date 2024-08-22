@@ -20,4 +20,4 @@ a <- 5e-4
 
 # ens
 ne <- 10
-fil <- "enkf"
+fil <- "eakf"
