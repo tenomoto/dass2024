@@ -119,7 +119,7 @@ $$ {#eq-adj-adjoint}
 すなわち、
 $$
 \begin{aligned}
-\mathbf{w}^\mathrm{a} &= \mathbf{w}^\mathrm{a} + \mathbf{L}^\mathrm{T}\dot{\mathbf{w}}\\
+\mathbf{w}^\mathrm{a} &= \mathbf{w}^\mathrm{a} + \mathbf{L}^\mathrm{T}\dot{\mathbf{w}}^\mathrm{a}\\
 \dot{\mathbf{w}}^\mathrm{a} &= \mathbf{0}
 \end{aligned}
 $$

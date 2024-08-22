@@ -17,13 +17,17 @@ calc.speed <- function(u, v) {
 u <- scale(rnorm(ne, xf[1], sf), scale=FALSE) + xf[1]
 v <- scale(rnorm(ne, xf[2], sf), scale=FALSE) + xf[2]
 us <- calc.speed(u, v)
-zf <- rbind(t(u), t(v), t(us))
+#zf <- rbind(t(u), t(v), t(us))
+zf <- rbind(t(u), t(v), t(u))
+zf.v <- rbind(t(u), t(v), t(v))
 if (fil=="enkf") {
   yo.p <- rnorm(ne, yo, so)
   yo.p <- yo.p - mean(yo.p) + yo
   za <- zf + enkf.analysis(zf, yo.p, r)
 } else {
-  za <- zf + eakf.analysis(zf, yo, r)
+  za.u <- zf + eakf.analysis(zf, yo, r)
+#  za.u[3, ] <- v
+  za <- za.u + eakf.analysis(zf.v, yo, r)
 }
 za.mean <- apply(za, 1, mean)
 

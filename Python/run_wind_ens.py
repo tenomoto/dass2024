@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import eakf
 import enkf
+fil = "enkf"
 
 seed = 514
 rng = np.random.default_rng(seed)
@@ -12,7 +13,6 @@ xf = np.array([2, 4])
 yo = 3
 so = 0.3
 r = so**2
-fil = "enkf"
 
 def calc_speed(u, v):
   return np.sqrt(u * u + v * v)
@@ -22,13 +22,19 @@ u += -u.mean() + xf[0]
 v = rng.normal(xf[1], sf, ne)
 v += -v.mean() + xf[1]
 us = calc_speed(u, v)
-zf = np.vstack([u, v, us])
+#zf = np.vstack([u, v, us])
+zf = np.vstack([u, v, u])
+zf_v = np.vstack([u, v, v])
 if fil=="enkf":
   yo_p = rng.normal(yo, so, ne)
   yo_p += yo - yo_p.mean()
   za = zf + enkf.analysis(zf, yo_p, r)
+  yo_p = rng.normal(yo, so, ne)
+  yo_p += yo - yo_p.mean()
+  za = za + enkf.analysis(zf_v, yo_p, r)
 else:
     za = zf + eakf.analysis(zf, yo, r)
+    za = za + eakf.analysis(zf_v, yo, r)
 za_mean = za.mean(axis=1)
 
 fig, ax = plt.subplots()

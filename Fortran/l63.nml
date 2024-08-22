@@ -8,8 +8,8 @@ obs_int = 60
 xt0 = 1.0d0, 3.0d0, 5.0d0
 xb0 = 1.1d0, 3.3d0, 5.5d0
 !xb0 = 1.d0, -1.d0, 1.d0
-obs_r = 0.01d0, 0.09d0, 0.25d0
-!obs_r = 1.0d0, 1.0d0, 1.0d0
+!obs_r = 0.01d0, 0.09d0, 0.25d0
+obs_r = 1.0d0, 1.0d0, 1.0d0
 /
 
 &var
@@ -21,5 +21,5 @@ a = 5.0d-4
 &ens
 model_q = 0.1d0
 ne = 10
-fil = "eakf"
+fil = "enkf"
 /

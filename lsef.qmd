@@ -1,0 +1,182 @@
+---
+title: 局所最小二乗法アンサンブルフィルタ
+author: "榎本剛"
+date: 2023-05-23
+bibliography: refs.bib
+csl: american-meteorological-society.csl
+format:
+  revealjs:
+    output-file: lsef-revealjs.html
+    scrollable: true
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: ltjsarticle
+    execute:
+      echo: false
+pdf-engine: lualatex
+---
+
+@Anderson:2003 の定式化と @Anderson:2001 との対応について述べる。
+
+## 単一観測
+
+結合状態・観測空間ベクトル
+
+$$
+\mathbf{z} = \begin{bmatrix}\mathbf{x} \\ h(\mathbf{x})\end{bmatrix}
+$$ {#eq-z}
+
+を用いる。単一観測の場合、$\mathbf{y}^\mathrm{o}= y^\mathrm{o}$は長さ1のベクトル、観測誤差共分散$\mathbf{R}=r$は$1\times 1$の行列となる。$n$を状態ベクトルの長さとすると、結合状態・観測ベクトルの長さは$k= n + 1$となる。
+予報誤差共分散$\boldsymbol\Sigma^\mathbf{f}$は$k\times k$行列、
+観測演算子は、$\mathbf{z}$から$h(\mathbf{x})$を取り出す$1\times k$の線型演算子になる。
+
+$$
+H = \begin{bmatrix}0 & 0 & \dots & 1\end{bmatrix}
+$$ {#eq-H}
+
+解析誤差共分散は次のように表すことができる。
+
+$$
+\begin{aligned}
+  \boldsymbol\Sigma^\mathbf{a} &= [(\boldsymbol\Sigma^\mathbf{f})^{-1} + \mathbf{H}^\mathrm{T}\mathbf{R}^{-1}\mathbf{H}]^{-1} \\
+  &= \left[(\boldsymbol\Sigma^\mathbf{f})^{-1} \left(\mathbf{I} + \frac{1}{r}\boldsymbol\Sigma^\mathrm{f}\mathbf{H}\mathbf{H}\right)\right]^{-1} \\
+  &= (\mathbf{I} + \boldsymbol\Sigma_{0k}^\mathrm{f})^{-1}\boldsymbol\Sigma^\mathbf{f}\\
+  &= \left[\mathbf{I} - \frac{1}{r + \sigma_{kk}}\boldsymbol\Sigma^\mathbf{f}_{0k}\right]\boldsymbol\Sigma^\mathbf{f}
+\end{aligned}
+$$ {#eq-sigmaa}
+
+ここで$\boldsymbol\Sigma^\mathrm{f}_{0k}$は$\boldsymbol\Sigma^\mathrm{f}$の$k$列目以外を0とした行列である。
+
+$$
+\mathbf{H}^\mathrm{T}\mathbf{H} = \begin{bmatrix}
+0 & \dots & 0 & 0\\
+\vdots & \ddots & \vdots & \vdots\\
+0 & \dots & 0 & 0\\
+0 & \dots & 0 & 1
+\end{bmatrix}
+$$ {#eq-sigma0k}
+
+及びNeumann級数
+
+$$
+(\mathbf{I} - \mathbf{P})^{-1} = \mathbf{I} + \frac{1}{1 - \alpha}\mathbf{P}
+$$
+
+において$\mathbf{} = -\boldsymbol\Sigma^\mathrm{f}_{0k}/r$、$-\sigma{kk}/r$を用いた。
+同化に伴う共分散の変化は
+
+$$
+\Delta\boldsymbol\Sigma=\boldsymbol\Sigma^\mathrm{a}-\boldsymbol\Sigma^\mathrm{f} = -\frac{1}{r + \sigma_{kk}}\boldsymbol\Sigma^\mathrm{f}_{0k}\boldsymbol\Sigma^\mathrm{f}
+$$ {#eq-dsigma}
+
+
+
+アンサンブル平均の解析値は次のように書ける。
+
+$$
+\begin{aligned}
+\bar{\mathbf{z}}^\mathrm{a} &= \left[\mathbf{I} - \frac{1}{r + \sigma_{kk}}\boldsymbol\Sigma^\mathrm{f}_{0k}\right]\boldsymbol\Sigma^\mathrm{f}\left[(\boldsymbol\Sigma^\mathrm{f})^{-1}\bar{\mathbf{z}}^\mathrm{f} + \mathbf{H}^\mathrm{T}\mathbf{R}^{-1}\mathbf{y}^\mathrm{o}\right] \\
+&= \left[\mathbf{I} - \frac{1}{r + \sigma_{kk}}\boldsymbol\Sigma^\mathrm{f}_{0k}\right]\bar{\mathbf{z}} + \frac{1}{r}\left[\mathbf{I} +\frac{\sigma_{kk}}{r + \sigma_{kk}}\right]\boldsymbol\Sigma^\mathrm{f}_{0k}\mathbf{H}^\mathrm{T}\mathbf{y}^\mathrm{o}
+\end{aligned}
+$$ {#eq-za}
+
+ここで
+
+$$
+\boldsymbol\Sigma^\mathrm{f}\mathbf{H}^\mathrm{T}\mathbf{y}^\mathrm{o} = \boldsymbol\Sigma^\mathrm{f}_{0k}\mathbf{H}^\mathrm{T}\mathbf{y}^\mathrm{o}
+$$
+
+$$
+\boldsymbol\Sigma^\mathrm{f}_{0k}\boldsymbol\Sigma^\mathrm{f}_{0k} = \sigma_{kk}\boldsymbol\Sigma^\mathrm{f}_{0k}
+$$
+
+を用いた。
+
+
+同化に伴うアンサンブル平均の変化は
+
+$$
+\begin{aligned}
+\Delta\bar{\mathbf{z}} &= \bar{\mathbf{z}}^\mathrm{a} - \bar{\mathbf{z}}^\mathrm{f} \\
+&=  - \frac{1}{r + \sigma_{kk}}\boldsymbol\Sigma^\mathrm{f}_{0k}\bar{\mathbf{z}}^\mathrm{f} + \frac{1}{r}\left[\mathbf{I} +\frac{\sigma_{kk}}{r + \sigma_{kk}}\right]\boldsymbol\Sigma^\mathrm{f}_{0k}\mathbf{H}^\mathrm{T}\mathbf{y}^\mathrm{o}\\
+&= \frac{1}{r + \sigma_{kk}}\left[-\boldsymbol\Sigma^\mathrm{f}_{0k}\bar{\mathbf{z}}^\mathrm{f} + \frac{1}{r}(r+\sigma_{kk} -\sigma_{kk})\boldsymbol\Sigma^\mathrm{f}_{0k}\mathbf{H}^\mathrm{T}\mathbf{y}^\mathrm{o}\right] \\
+&= \frac{1}{r + \sigma_{kk}}\boldsymbol\Sigma^\mathrm{f}_{0k}(\mathbf{H}^\mathrm{T}\mathbf{y}^\mathrm{o} - \bar{\mathbf{z}}^\mathrm{f})\\
+&= \frac{1}{r + \sigma_{kk}}(\mathrm{y}^\mathrm{o} - \bar{z}_k^\mathrm{f})\begin{bmatrix}\sigma_{1k} & \sigma_{2k} & \dots &\sigma_{kk}\end{bmatrix}^\mathrm{T}
+\end{aligned}
+$$ {#eq-dzbar}
+
+
+
+## 二段階同化EnKF
+
+摂動観測$\mathbf{y}_i^\mathrm{f},\,i=1,\dots,N$を生成する。
+観測相当量の第一推定値と解析の分散を区別するために上付きの添字を付す。
+
+$$
+\boldsymbol\Sigma^\mathrm{a} = \sigma^\mathrm{a}_{kk}= \left(\frac{1}{\sigma^\mathrm{f}_{kk}} + \frac{1}{r}\right)^{-1}
+$$
+
+$$
+y_i^\mathrm{a} = \frac{r\sigma^\mathrm{f}_{kk}}{r + \sigma^\mathrm{f}_{kk}}\left(\frac{y_i^\mathrm{f}}{\sigma^\mathrm{f}_{kk}} + \frac{y_i^\mathrm{o}}{r}\right) = y_i^\mathrm{f} + \frac{\sigma^\mathrm{f}_{kk}}{r + \sigma^\mathrm{f}_{kk}}(y_i^\mathrm{o}- y_i^\mathrm{f})
+$$$\Delta y_i = y_i^\mathrm{o}- y_i^\mathrm{f}$と置くと
+
+$$
+\Delta z_{ij} = \frac{\sigma^\mathrm{f}_{jk}}{\sigma^\mathrm{f}_{kk}}\Delta y_i
+$$
+
+と表せるので、線型回帰で表せることが分かる。
+
+
+## 二段階EAKF
+
+まず、観測相当量のアンサンブルを調節する。
+
+$$
+\delta y^\mathrm{a}_i= y_i^\mathrm{a} - \bar{y}^\mathrm{a} = \alpha(y_i^\mathrm{f} - \bar{y}^\mathrm{f}) = \alpha\delta y^\mathrm{f}_i
+$$
+
+$E(\delta y^\mathrm{a}_i, \delta y^\mathrm{a}_i) = \sigma^\mathrm{a}_{kk},\,E(\delta y^\mathrm{f}_i, \delta y^\mathrm{f}_i) = \sigma^\mathrm{f}_{kk}$なので、
+
+$$
+\alpha = \sqrt{\frac{\sigma^\mathrm{a}_{kk}}{\sigma^\mathrm{f}_{kk}}} = \sqrt{\frac{r}{r + \sigma^\mathrm{f}_{kk}}}
+$$
+
+$$
+\Delta\delta y_i = \delta y^\mathrm{a}_i - \delta y^\mathrm{f}_i = (\alpha - 1) \delta y^\mathrm{f}_i
+$$
+
+次に線型回帰により結合状態・観測ベクトルのアンサンブルを調節する。
+
+$$
+\Delta\delta z_{ij} = \frac{\sigma^\mathrm{a}_{kk}}{\sigma^\mathrm{f}_{kk}}\Delta\delta y^\mathrm{a} = \frac{\sigma^\mathrm{a}_{kk}}{\sigma^\mathrm{f}_{kk}}(\alpha - 1)\delta y^\mathrm{f}_i
+$$ {#eq-dzdy}
+
+従って
+
+$$
+\mathbf{z}^\mathrm{a} = \mathbf{z}^\mathrm{f} + \Delta\bar{\mathbf{z}} + \frac{\boldsymbol\sigma^\mathrm
+f}{\sigma^\mathrm{f}_{kk}}(\alpha - 1)(\mathbf{y}^\mathrm{f} - \bar{\mathbf{y}})
+$$
+
+ここで$\delta\bar{\mathbf{z}}$は式({@eq-dzbar})で求める。
+
+ところで
+
+$$
+\delta \mathbf{z}^\mathrm{a}_{i} = \mathbf{A}\delta \mathbf{z}^\mathrm{f}_{i}
+$$
+
+と書くと
+
+$$
+\mathbf{A} = \mathbf{I} + \frac{\alpha - 1}{\sigma^\mathrm{f}_{kk}}\boldsymbol\Sigma^\mathrm{f}_{0k}
+$$
+
+となることが分かる。
+
+
+## 参考文献
+
+::: {#refs}
+:::
